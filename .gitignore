@@ -1,0 +1,72 @@
+## ====================================================================
+## PHẦN 1: BẢO MẬT & MÔI TRƯỜNG (QUAN TRỌNG NHẤT)
+## Không bao giờ commit file chứa mật khẩu, database connection string
+## ====================================================================
+.env
+.env.local
+.env.*.local
+*.publishsettings
+*.pubxml
+*.pfx
+
+## ====================================================================
+## PHẦN 2: THƯ VIỆN & DEPENDENCIES (NẶNG, SẼ TỰ REHYDRATE KHI CHẠY LỆNH)
+## ====================================================================
+# Node / Frontend dependencies
+node_modules/
+/dist
+/public/storage
+
+# .NET / NuGet packages
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+# Composer (Nếu dùng PHP/Laravel)
+/vendor/
+
+## ====================================================================
+## PHẦN 3: FILE KẾT QUẢ BUILD & THƯ MỤC TẠM
+## ====================================================================
+# .NET Build outputs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+*.VisualState.xml
+
+# Log files
+*.log
+*.binlog
+
+## ====================================================================
+## PHẦN 4: CẤU HÌNH CỦA IDE / EDITOR (CÁ NHÂN HÓA)
+## Giữ lại cấu hình debug cần thiết, bỏ qua các file cache, user settings
+## ====================================================================
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+# JetBrains Rider / PhpStorm
+.idea/
+*.sln.iml
+
+## ====================================================================
+## PHẦN 5: FILE HỆ ĐIỀU HÀNH VÀ HỆ THỐNG
+## ====================================================================
+.DS_Store
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
