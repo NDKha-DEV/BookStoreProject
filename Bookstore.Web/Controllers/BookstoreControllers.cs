@@ -1,34 +1,35 @@
 using Microsoft.AspNetCore.Mvc;
 using Bookstore.Core.Models;
-using Bookstore.Core.Interfaces; // Thêm dòng này để sửa lỗi tìm kiếm ISearchStrategy
+using Bookstore.Core.Interfaces; 
 using Bookstore.Web.Modules.NV2_Book.Services; 
 using System.Linq;
 
 namespace Bookstore.Web.Controllers
 {
-    // ==========================================
-    // CỔNG API QUẢN LÝ SÁCH
-    // ==========================================
+// CỔNG API QUẢN LÝ SÁCH
     [ApiController]
     [Route("api/[controller]")]
     public class BookController : ControllerBase
-    {
-        private readonly IBookService _bookService;
-        
+    {        private readonly IBookService _bookService;
         public BookController(IBookService bookService) 
         {
             _bookService = bookService;
         }
-
-        // ------------------------------------------
-        // [SÁCH] - XEM DANH SÁCH
-        // ------------------------------------------
+// [SÁCH] - XEM DANH SÁCH SÁCH HIỆN CÓ
         [HttpGet]
         public IActionResult GetAll() => Ok(_bookService.GetAllBooks());
 
-        // ------------------------------------------
-        // [SÁCH] - TÌM KIẾM SÁCH (STRATEGY PATTERN)
-        // ------------------------------------------
+// [SÁCH] - XEM CHI TIẾT SÁCH THEO ID
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var book = _bookService.GetAllBooks().FirstOrDefault(b => b.Id == id);
+            if (book == null) 
+                return NotFound(new { message = $"Không tìm thấy sách có ID = {id}" });
+            
+            return Ok(book);
+        }
+// [SÁCH] - TÌM KIẾM SÁCH ( SD STRATEGY PATTERN)
         [HttpGet("search")]
         public IActionResult Search([FromQuery] string type, [FromQuery] string keyword)
         {
@@ -43,9 +44,7 @@ namespace Bookstore.Web.Controllers
             return (result == null || result.Count == 0) ? NotFound(new { message = "Không tồn tại sản phẩm" }) : Ok(result);
         }
 
-        // ==========================================
-        // KHU VỰC: THÊM SẢN PHẨM SÁCH MỚI
-        // ==========================================
+// THÊM SP SÁCH MỚI VÀO HỆ THỐNG (SD FACTORY METHOD ĐỂ TỰ ĐỘNG SINH THEO LOẠI SÁCH)
         [HttpPost]
         public IActionResult Create([FromQuery] string bookType, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock)
         {
@@ -62,9 +61,7 @@ namespace Bookstore.Web.Controllers
             catch (System.ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
         }
 
-        // ==========================================
-        // KHU VỰC: CẬP NHẬT THÔNG TIN SÁCH
-        // ==========================================
+// CẬP NHẬT THÔNG TIN SÁCH 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock)
         {
@@ -76,9 +73,7 @@ namespace Bookstore.Web.Controllers
             return Ok(new { message = "Cập nhật thành công", data = book });
         }
 
-        // ==========================================
-        // KHU VỰC: XÓA SÁCH KHỎI HỆ THỐNG
-        // ==========================================
+//XÓA SÁCH KHỎI HỆ THỐNG
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -90,31 +85,24 @@ namespace Bookstore.Web.Controllers
         }
     }
 
-    // ==========================================
-    // CỔNG API QUẢN LÝ DANH MỤC
-    // ==========================================
+// CỔNG API QUẢN LÝ DANH MỤC SÁCH
     [ApiController]
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
         private readonly CategoryService _categoryService;
         private readonly IBookService _bookService;
-        
         public CategoryController(CategoryService catService, IBookService bookService) 
         { 
             _categoryService = catService; 
             _bookService = bookService; 
         }
 
-        // ------------------------------------------
-        // [DANH MỤC] - XEM DANH SÁCH DANH MỤC
-        // ------------------------------------------
+// XEM TOÀN BỘ DANH SÁCH DANH MỤC SP HIỆN CÓ
         [HttpGet]
         public IActionResult GetAll() => Ok(_categoryService.GetAllCategories());
 
-        // ==========================================
-        // KHU VỰC: THÊM DANH MỤC SẢN PHẨM MỚI
-        // ==========================================
+// THÊM DANH MỤC MỚI VÀO HT 
         [HttpPost]
         public IActionResult Create([FromQuery] string name, [FromQuery] string description)
         {
@@ -124,9 +112,7 @@ namespace Bookstore.Web.Controllers
             return Ok(new { message = "Thêm danh mục thành công", data = newCat });
         }
 
-        // ==========================================
-        // KHU VỰC: CẬP NHẬT DANH MỤC SẢN PHẨM
-        // ==========================================
+// CẬP NHẬT DANH MỤC HIỆN CÓ (có chặn trùng lặp tên danh mục)
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromQuery] string name, [FromQuery] string description)
         {
@@ -138,9 +124,7 @@ namespace Bookstore.Web.Controllers
             return Ok(new { message = "Cập nhật thành công", data = category });
         }
 
-        // ==========================================
-        // KHU VỰC: XÓA DANH MỤC SẢN PHẨM (CÓ CHẶN NGOẠI LỆ)
-        // ==========================================
+//XÓA DANH MỤC KHỎI HỆ THỐNG (có chặn xóa nếu danh mục đang chứa sản phẩm)
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

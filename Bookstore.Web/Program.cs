@@ -1,60 +1,23 @@
 using Bookstore.Core.Interfaces;
-// using Bookstore.Web.Modules.NV1_Account;
-// using Bookstore.Web.Modules.NV2_Book;
-// using Bookstore.Web.Modules.NV3_Cart;
-// using Bookstore.Web.Modules.NV4_Order;
-// using Bookstore.Web.Modules.NV5_Payment; 
-
+using Bookstore.Web.Modules.NV2_Book.Services;
 var builder = WebApplication.CreateBuilder(args);
-
-// -----------------------------------------------------------------------------
-// 🛠️ KHU VỰC CẤU HÌNH DEPENDENCY INJECTION (DI CONTAINER)
-// Nơi Trưởng nhóm đấu nối Interface với các Class Pattern cụ thể của thành viên
-// -----------------------------------------------------------------------------
-
-// 1. Cấu hình các Controllers để hứng Request từ Frontend/Postman thay vì dùng Minimal API mặc định
+// Đăng ký dịch vụ
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwaggerGen(); 
 
-// 2. Cấu hình Swagger/OpenAPI (để test API trực quan trên trình duyệt)
-builder.Services.AddOpenApi();
-
-
-// 💡 Gợi ý đấu nối cho các module tiếp theo (khi các thành viên code xong, bạn hãy bỏ comment ra):
-// builder.Services.AddSingleton<IAuthService, AuthService>();     // NV1 - Singleton vì quản lý session chung
- builder.Services.AddScoped<IBookService, Bookstore.Web.Modules.NV2_Book.Services.BookService>();
- // Đăng ký Service cho sản phẩm cũ
-builder.Services.AddScoped<IBookService, Bookstore.Web.Modules.NV2_Book.Services.BookService>(); // NV2
-
-// THÊM DÒNG NÀY: Đăng ký Service cho danh mục mới
-builder.Services.AddSingleton<Bookstore.Web.Modules.NV2_Book.Services.CategoryService>();
-// builder.Services.AddScoped<ICartService, CartService>();         // NV3
-// builder.Services.AddScoped<IOrderService, OrderService>();       // NV4
-// builder.Services.AddScoped<IPaymentService, PaymentService>();   // NV5
-
-
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddSingleton<CategoryService>();
 var app = builder.Build();
-
-// -----------------------------------------------------------------------------
-// 🌐 KHU VỰC CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE)
-// -----------------------------------------------------------------------------
-
+// Cấu hình Middleware
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    
-    // Thêm dòng này nếu bạn muốn dùng giao diện Swagger UI trực quan để test API (Rất điểm cộng khi báo cáo)
-    //app.UseSwaggerUI(); 
+    app.UseSwagger(); 
+    app.UseSwaggerUI(); 
 }
 
 app.UseHttpsRedirection();
-
-// Kích hoạt tính năng Routing để map các Request vào các file Controller của nhóm
-app.UseRouting();
-
-// Thêm Middleware kiểm tra quyền truy cập (Bổ trợ trực tiếp cho Proxy Pattern của NV1)
 app.UseAuthorization();
-
-// Đăng ký các Endpoint từ Controllers
 app.MapControllers();
 
 app.Run();
