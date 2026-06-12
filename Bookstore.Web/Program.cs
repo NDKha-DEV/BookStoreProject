@@ -1,9 +1,9 @@
 using Bookstore.Core.Interfaces;
-using Bookstore.Web.Modules.NV1_Account;
-using Bookstore.Web.Modules.NV2_Book;
-using Bookstore.Web.Modules.NV3_Cart;
-using Bookstore.Web.Modules.NV4_Order;
-using Bookstore.Web.Modules.NV5_Payment; 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Bookstore.Web.Services;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +13,22 @@ var builder = WebApplication.CreateBuilder(args);
 // -----------------------------------------------------------------------------
 
 // 1. Cấu hình các Controllers để hứng Request từ Frontend/Postman thay vì dùng Minimal API mặc định
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opts => {
+    opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
+
+// Session and in-memory cache for storing cart per-user
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+
+builder.Services.AddHttpContextAccessor();
+
+// App services for cart and inventory
+builder.Services.AddScoped<SessionCartManager>();
+builder.Services.AddScoped<ICartManager, CartValidationDecorator>();
+
+builder.Services.AddSingleton<IInventoryStrategy, InMemoryInventoryStrategy>();
+builder.Services.AddSingleton<IInventoryService, InventoryService>();
 
 // 2. Cấu hình Swagger/OpenAPI (để test API trực quan trên trình duyệt)
 builder.Services.AddOpenApi();
@@ -37,14 +52,16 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     
-    // Thêm dòng này nếu bạn muốn dùng giao diện Swagger UI trực quan để test API (Rất điểm cộng khi báo cáo)
-    app.UseSwaggerUI(); 
+    // Swagger UI không khả dụng với package Microsoft.AspNetCore.OpenApi hiện tại.
 }
 
 app.UseHttpsRedirection();
 
 // Kích hoạt tính năng Routing để map các Request vào các file Controller của nhóm
 app.UseRouting();
+
+// Enable session middleware so CartService can use session storage
+app.UseSession();
 
 // Thêm Middleware kiểm tra quyền truy cập (Bổ trợ trực tiếp cho Proxy Pattern của NV1)
 app.UseAuthorization();
