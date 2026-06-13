@@ -1,9 +1,10 @@
 using Bookstore.Core.Interfaces;
-using Bookstore.Web.Modules.NV1_Account;
-using Bookstore.Web.Modules.NV2_Book;
-using Bookstore.Web.Modules.NV3_Cart;
+
+// using Bookstore.Web.Modules.NV1_Account;
+// using Bookstore.Web.Modules.NV2_Book;
+// using Bookstore.Web.Modules.NV3_Cart;
 using Bookstore.Web.Modules.NV4_Order;
-using Bookstore.Web.Modules.NV5_Payment; 
+// using Bookstore.Web.Modules.NV5_Payment; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.AddOpenApi();
 // builder.Services.AddSingleton<IAuthService, AuthService>();     // NV1 - Singleton vì quản lý session chung
 // builder.Services.AddScoped<IBookService, BookService>();         // NV2
 // builder.Services.AddScoped<ICartService, CartService>();         // NV3
-// builder.Services.AddScoped<IOrderService, OrderService>();       // NV4
+builder.Services.AddScoped<IOrderService, OrderService>();       // NV4
 // builder.Services.AddScoped<IPaymentService, PaymentService>();   // NV5
 
 
@@ -38,7 +39,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     
     // Thêm dòng này nếu bạn muốn dùng giao diện Swagger UI trực quan để test API (Rất điểm cộng khi báo cáo)
-    app.UseSwaggerUI(); 
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Bookstore API v1");
+    }); 
 }
 
 app.UseHttpsRedirection();
