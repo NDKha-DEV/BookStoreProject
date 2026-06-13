@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookstore.Core", "Bookstore
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookstore.Web", "Bookstore.Web\Bookstore.Web.csproj", "{B28174DC-A757-4CEE-AA23-7928C3088A0A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookstore.Tests", "Bookstore.Tests\Bookstore.Tests.csproj", "{04449793-A6C6-40AE-9D83-1B5AFA9988AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{B28174DC-A757-4CEE-AA23-7928C3088A0A}.Release|x64.Build.0 = Release|Any CPU
 		{B28174DC-A757-4CEE-AA23-7928C3088A0A}.Release|x86.ActiveCfg = Release|Any CPU
 		{B28174DC-A757-4CEE-AA23-7928C3088A0A}.Release|x86.Build.0 = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|x64.Build.0 = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Debug|x86.Build.0 = Debug|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|x64.ActiveCfg = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|x64.Build.0 = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|x86.ActiveCfg = Release|Any CPU
+		{04449793-A6C6-40AE-9D83-1B5AFA9988AC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

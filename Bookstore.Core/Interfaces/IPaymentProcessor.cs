@@ -1,9 +1,9 @@
-// 5. NV5: IPaymentProcessor.cs - Cổng Adapter thanh toán chung
+// Vị trí: Bookstore.Core/Interfaces/IPaymentProcessor.cs
 namespace Bookstore.Core.Interfaces
 {
     public interface IPaymentProcessor
     {
-        // Trả về true nếu thanh toán thành công, false nếu thất bại
-        bool ProcessPayment(decimal amount);
+        // Thêm tham số int orderId để các Adapter có đủ dữ liệu ghi log đối soát
+        bool ProcessPayment(int orderId, decimal amount);
     }
 }

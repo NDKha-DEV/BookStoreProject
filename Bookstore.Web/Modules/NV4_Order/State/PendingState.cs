@@ -1,4 +1,4 @@
-// Trong file: Bookstore.Web/Modules/NV4_Order/States/PendingState.cs
+// Vị trí: Bookstore.Web/Modules/NV4_Order/States/PendingState.cs
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models;
 
@@ -6,17 +6,29 @@ namespace Bookstore.Web.Modules.NV4_Order.States
 {
     public class PendingState : IOrderState
     {
-        public string GetStatusName() => "Chờ duyệt";
+        public string GetStatusName() => "Chờ duyệt và đóng gói";
 
         public void Proceed(Order order)
         {
-            // Từ Chờ duyệt chuyển sang Đang giao
+            // Kiểm tra ràng buộc: Nếu chọn thanh toán Online mà chưa trả tiền thì cấm duyệt
+            if (order.PaymentMethod == "ONLINE" && order.PaymentStatus == "Unpaid")
+            {
+                throw new InvalidOperationException("Đơn hàng trực tuyến chưa được thanh toán thành công. Không thể duyệt giao hàng!");
+            }
+
+            // Hợp lệ thì chuyển sang Đang giao
+            order.ShippingStatus = "Shipping";
             order.CurrentState = new DeliveringState();
         }
 
         public void Cancel(Order order)
         {
-            // Từ Chờ duyệt có thể Hủy đơn hàng
+            order.ShippingStatus = "Cancelled";
+            // Nếu khách đã trả tiền trực tuyến mà hủy đơn, chuyển trạng thái tiền sang Chờ hoàn tiền
+            if (order.PaymentStatus == "Paid")
+            {
+                order.PaymentStatus = "Refunded";
+            }
             order.CurrentState = new CancelledState();
         }
     }

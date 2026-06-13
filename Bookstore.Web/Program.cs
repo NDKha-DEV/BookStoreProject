@@ -1,59 +1,60 @@
+// Vị trí: Bookstore.Web/Program.cs
 using Bookstore.Core.Interfaces;
-
-// using Bookstore.Web.Modules.NV1_Account;
-// using Bookstore.Web.Modules.NV2_Book;
-// using Bookstore.Web.Modules.NV3_Cart;
+using Bookstore.Web.Modules.NV2_Book;
 using Bookstore.Web.Modules.NV4_Order;
-// using Bookstore.Web.Modules.NV5_Payment; 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // -----------------------------------------------------------------------------
 // 🛠️ KHU VỰC CẤU HÌNH DEPENDENCY INJECTION (DI CONTAINER)
-// Nơi Trưởng nhóm đấu nối Interface với các Class Pattern cụ thể của thành viên
 // -----------------------------------------------------------------------------
 
-// 1. Cấu hình các Controllers để hứng Request từ Frontend/Postman thay vì dùng Minimal API mặc định
+// 1. Đăng ký bộ thu nạp Controller API hứng nhận Request từ Frontend / Swagger UI
 builder.Services.AddControllers();
 
-// 2. Cấu hình Swagger/OpenAPI (để test API trực quan trên trình duyệt)
+// 2. Đăng ký cấu hình tự động tạo tài liệu API Swagger/OpenAPI v1
 builder.Services.AddOpenApi();
 
+// 3. ĐẤU NỐI CÁC MODULE CHUYÊN BIỆT THEO CHUẨN DESIGN PATTERN
+// [NV1]: AuthService quản lý Session Singleton có Instance nội bộ riêng, không nạp tại đây.
 
-// 💡 Gợi ý đấu nối cho các module tiếp theo (khi các thành viên code xong, bạn hãy bỏ comment ra):
-// builder.Services.AddSingleton<IAuthService, AuthService>();     // NV1 - Singleton vì quản lý session chung
-// builder.Services.AddScoped<IBookService, BookService>();         // NV2
-// builder.Services.AddScoped<ICartService, CartService>();         // NV3
-builder.Services.AddScoped<IOrderService, OrderService>();       // NV4
-// builder.Services.AddScoped<IPaymentService, PaymentService>();   // NV5
+// [NV2]: Đăng ký dịch vụ sách thông qua giao diện Interface chuẩn trừu tượng
+builder.Services.AddScoped<IBookService, BookService>(); 
 
+// [NV4]: Đăng ký lõi quản lý vòng đời đơn hàng xử lý State và Observer
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// (Lưu ý kiến trúc: NV3 và NV5 thực thi cấu trúc cơ động Decorator/Strategy/Adapter 
+// trực tiếp tại Runtime luồng xử lý của Controller nên không cần ép đăng ký Service).
 
 var app = builder.Build();
 
 // -----------------------------------------------------------------------------
-// 🌐 KHU VỰC CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE)
+// 🌐 KHU VỰC CẤU HÌNH HTTP REQUEST PIPELINE (MIDDLEWARE ĐIỀU PHỐI)
 // -----------------------------------------------------------------------------
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     
-    // Thêm dòng này nếu bạn muốn dùng giao diện Swagger UI trực quan để test API (Rất điểm cộng khi báo cáo)
+    // Bật giao diện Swagger UI giúp nhóm dễ dàng test bấm nút demo trực tiếp trước Hội đồng
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/openapi/v1.json", "Bookstore API v1");
+        options.SwaggerEndpoint("/openapi/v1.json", "E-Commerce Bookstore API v1");
     }); 
 }
 
 app.UseHttpsRedirection();
 
-// Kích hoạt tính năng Routing để map các Request vào các file Controller của nhóm
+// Kích hoạt Middleware định tuyến liên kết URL khớp với các Controller
 app.UseRouting();
 
-// Thêm Middleware kiểm tra quyền truy cập (Bổ trợ trực tiếp cho Proxy Pattern của NV1)
+// Middleware hỗ trợ phân quyền bổ trợ cho mẫu thiết kế Proxy Pattern bảo mật
 app.UseAuthorization();
 
-// Đăng ký các Endpoint từ Controllers
+// Đăng ký ánh xạ các Endpoint API cấu hình trong các Controller
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

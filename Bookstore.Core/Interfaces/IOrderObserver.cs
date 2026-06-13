@@ -5,5 +5,6 @@ namespace Bookstore.Core.Interfaces
     public interface IOrderObserver
     {
         void UpdateOnOrderDelivered(int orderId);
+        void UpdateOnOrderCancelled(int orderId);
     }
 }

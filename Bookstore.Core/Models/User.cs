@@ -6,6 +6,7 @@ namespace Bookstore.Core.Models
         public int Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty; // Lưu mật khẩu đã mã hóa
+        public string PasswordSalt { get; set; } = string.Empty; // Muối để tăng cường bảo mật mật khẩu
         public string Email { get; set; } = string.Empty;
         
         // Phân quyền: "Admin" hoặc "Customer"
