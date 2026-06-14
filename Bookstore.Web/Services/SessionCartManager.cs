@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Services/SessionCartManager.cs
 using Bookstore.Web.Models;
 using Microsoft.AspNetCore.Http;
 using System.Linq;

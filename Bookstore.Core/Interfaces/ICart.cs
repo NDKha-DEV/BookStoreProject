@@ -1,4 +1,4 @@
-// Trong file: Bookstore.Core/Interfaces/ICart.cs -NV3
+// vị trí: Bookstore.Core/Interfaces/ICart.cs
 namespace Bookstore.Core.Interfaces
 {
     public interface ICart

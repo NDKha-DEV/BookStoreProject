@@ -1,4 +1,4 @@
-// Trong file: Bookstore.Core/Models/Cart.cs
+// vị trí: Bookstore.Core/Models/Cart.cs
 using Bookstore.Core.Interfaces;
 
 namespace Bookstore.Core.Models

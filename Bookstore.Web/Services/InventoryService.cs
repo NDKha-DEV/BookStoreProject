@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Services/InventoryService.cs
 using System.Collections.Concurrent;
 
 namespace Bookstore.Web.Services

@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Services/ISessionExtensions.cs
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 

@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Models/CartItemDto.cs
 using System;
 
 namespace Bookstore.Web.Models

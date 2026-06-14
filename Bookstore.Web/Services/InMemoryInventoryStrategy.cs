@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Services/InMemoryInventoryStrategy.cs
 namespace Bookstore.Web.Services
 {
     public class InMemoryInventoryStrategy : IInventoryStrategy

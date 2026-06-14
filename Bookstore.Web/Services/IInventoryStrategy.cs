@@ -1,3 +1,4 @@
+// vị trí: Bookstore.Web/Services/IInventoryStrategy.cs
 namespace Bookstore.Web.Services
 {
     public interface IInventoryStrategy
