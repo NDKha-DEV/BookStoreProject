@@ -1,4 +1,4 @@
-// Trong file: Bookstore.Core/Models/Payment.cs
+// vị trí: Bookstore.Core/Models/Payment.cs
 namespace Bookstore.Core.Models
 {
     public class Payment

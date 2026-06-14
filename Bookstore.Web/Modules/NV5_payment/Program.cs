@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Vị trí: Bookstore.Web/Modules/NV5_payment/Program.cs
+using System;
 
 namespace BookStorePaymentSystem
 {

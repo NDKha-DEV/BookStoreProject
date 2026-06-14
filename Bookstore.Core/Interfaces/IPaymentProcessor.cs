@@ -1,4 +1,4 @@
-// 5. NV5: IPaymentProcessor.cs - Cổng Adapter thanh toán chung
+// vị trí: Bookstore.Core/Interfaces/IPaymentProcessor.cs
 namespace Bookstore.Core.Interfaces
 {
     public interface IPaymentProcessor
