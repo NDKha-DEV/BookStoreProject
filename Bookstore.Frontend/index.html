@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Commerce Bookstore - SPA Dashboard Pro</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .navbar-brand {
+        font-weight: bold;
+        color: #2b2d42 !important;
+      }
+      .book-card {
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        height: 100%;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+      .book-img {
+        height: 220px;
+        object-fit: cover;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        background-color: #e9ecef;
+      }
+      .badge-type {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      .view-section {
+        display: none;
+      }
+      .view-section.active {
+        display: block;
+      }
+      .auth-box {
+        max-width: 450px;
+        margin: 50px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm mb-4"
+    >
+      <div class="container">
+        <a class="navbar-brand" href="#" onclick="switchView('view-shop')"
+          >📚 BOOKSTORE PRO</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a
+                class="nav-link px-3 fw-medium"
+                href="#"
+                onclick="switchView('view-shop')"
+                >Cửa Hàng</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-3 fw-medium position-relative"
+                href="#"
+                onclick="switchView('view-cart')"
+                >Giỏ Hàng
+                <span id="cart-badge" class="badge bg-danger rounded-pill"
+                  >0</span
+                ></a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-3 fw-medium"
+                href="#"
+                onclick="switchView('view-tracking')"
+                >Tra Cứu Đơn Hàng</a
+              >
+            </li>
+            <li class="nav-item d-none" id="nav-admin-link">
+              <a
+                class="nav-link px-3 fw-medium text-danger"
+                href="#"
+                onclick="switchView('view-admin')"
+                >⚙️ Quản Trị (Admin)</a
+              >
+            </li>
+          </ul>
+          <div class="d-flex align-items-center" id="auth-nav-zone">
+            <div id="nav-logged-out">
+              <button
+                class="btn btn-outline-primary btn-sm me-2"
+                onclick="switchView('view-login')"
+              >
+                Đăng Nhập
+              </button>
+              <button
+                class="btn btn-primary btn-sm"
+                onclick="switchView('view-register')"
+              >
+                Đăng Ký
+              </button>
+            </div>
+            <div id="nav-logged-in" class="d-none">
+              <span class="me-3 small"
+                >Xin chào:
+                <strong id="nav-username" class="text-dark">-</strong>
+                <span id="nav-role-badge" class="badge bg-secondary"
+                  >CUSTOMER</span
+                ></span
+              >
+              <button
+                class="btn btn-outline-danger btn-sm"
+                onclick="handleLogout()"
+              >
+                Đăng Xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-4">
+      <section id="view-login" class="view-section">
+        <div class="card auth-box p-4 shadow-sm bg-white">
+          <h3 class="text-center fw-bold mb-4">🔐 Đăng Nhập Hệ Thống</h3>
+          <div class="mb-3">
+            <label class="form-label">Tài khoản (Username)</label
+            ><input
+              type="text"
+              id="login-user"
+              class="form-control"
+              placeholder="Nhập tên đăng nhập..."
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mật khẩu</label
+            ><input
+              type="password"
+              id="login-pass"
+              class="form-control"
+              placeholder="Nhập mật khẩu..."
+            />
+          </div>
+          <button class="btn btn-primary w-100 fw-bold" onclick="handleLogin()">
+            Xác Nhận Đăng Nhập
+          </button>
+          <div class="text-center mt-3 small">
+            Chưa có tài khoản?
+            <a href="#" onclick="switchView('view-register')">Đăng ký ngay</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-register" class="view-section">
+        <div class="card auth-box p-4 shadow-sm bg-white">
+          <h3 class="text-center fw-bold mb-4">📝 Đăng Ký Tài Khoản Khách</h3>
+          <div class="mb-3">
+            <label class="form-label">Tài khoản mới</label
+            ><input type="text" id="reg-user" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mật khẩu</label
+            ><input type="password" id="reg-pass" class="form-control" />
+          </div>
+          <button
+            class="btn btn-success w-100 fw-bold"
+            onclick="handleRegister()"
+          >
+            Đăng Ký
+          </button>
+          <div class="text-center mt-3 small">
+            Đã có tài khoản?
+            <a href="#" onclick="switchView('view-login')"
+              >Quay lại Đăng nhập</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="view-shop" class="view-section active">
+        <div class="row mb-4 g-3 align-items-center">
+          <div class="col-md-4">
+            <input
+              type="text"
+              id="search-keyword"
+              class="form-content form-control"
+              placeholder="Nhập từ khóa tìm kiếm..."
+            />
+          </div>
+          <div class="col-md-3">
+            <select id="search-type" class="form-select">
+              <option value="title">Tìm theo Tiêu đề</option>
+              <option value="author">Tìm theo Tác giả</option>
+              <option value="type">
+                Tìm theo Định dạng (Paper/EBook/Audio)
+              </option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-dark w-100" onclick="searchBooks()">
+              Tìm kiếm
+            </button>
+          </div>
+          <div class="col-md-3 text-end">
+            <select
+              id="filter-category"
+              class="form-select"
+              onchange="loadBooksByCategory(this.value)"
+            >
+              <option value="">-- Tất cả danh mục --</option>
+            </select>
+          </div>
+        </div>
+        <div
+          class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4"
+          id="books-container"
+        ></div>
+      </section>
+
+      <section id="view-cart" class="view-section">
+        <h3 class="mb-4">🛒 Giỏ Hàng Của Bạn</h3>
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="card p-3 shadow-sm bg-white table-responsive">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th>Loại</th>
+                    <th>Đơn giá</th>
+                    <th style="width: 120px">Số lượng</th>
+                    <th>Tổng</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="cart-items-container"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card p-4 shadow-sm bg-white">
+              <h4 class="mb-3">Tùy Chọn Đặt Hàng</h4>
+              <div class="mb-3">
+                <label class="form-label fw-bold"
+                  >Khoảng cách giao hàng (km)</label
+                ><input
+                  type="number"
+                  id="order-distance"
+                  class="form-control"
+                  value="2"
+                  min="0.1"
+                  step="0.1"
+                  onchange="refreshCartSummary()"
+                />
+              </div>
+              <div class="form-check form-switch mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="order-vat"
+                  checked
+                  onchange="refreshCartSummary()"
+                /><label class="form-check-label" for="order-vat"
+                  >Tính thuế VAT (+10%)</label
+                >
+              </div>
+              <div class="form-check form-switch mb-4">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="order-gift"
+                  onchange="refreshCartSummary()"
+                /><label class="form-check-label" for="order-gift"
+                  >Gói quà nghệ thuật (+Chí phí)</label
+                >
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between mb-3">
+                <span class="fs-5 fw-bold">Tổng thanh toán:</span
+                ><span class="fs-4 text-danger fw-bold" id="cart-total-price"
+                  >0đ</span
+                >
+              </div>
+              <button
+                class="btn btn-success btn-lg w-100"
+                onclick="checkoutOrder()"
+              >
+                🚀 Đặt Hàng Ngay
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-tracking" class="view-section">
+        <h3 class="mb-4">🔍 Kiểm Tra Trạng Thái & Thanh Toán</h3>
+        <div class="row g-4">
+          <div class="col-md-5">
+            <div class="card p-4 shadow-sm bg-white">
+              <h5>Nhập Mã Đơn Hàng Kiểm Tra</h5>
+              <div class="input-group mb-3 mt-3">
+                <input
+                  type="number"
+                  id="track-order-id"
+                  class="form-control"
+                  placeholder="Ví dụ: 1"
+                /><button class="btn btn-primary" onclick="getTrackingStatus()">
+                  Truy vấn
+                </button>
+              </div>
+              <div
+                id="payment-gate-zone"
+                class="mt-4 p-3 border rounded bg-light d-none"
+              >
+                <h6 class="text-warning">💳 Cổng Thanh Toán Trực Tuyến</h6>
+                <p class="small text-muted">
+                  Chọn phương thức để hoàn tất đơn hàng:
+                </p>
+                <select id="payment-method-select" class="form-select mb-3">
+                  <option value="VNPAY">Cổng Thẻ Quốc Tế VNPAY</option>
+                  <option value="MOMO">Ví Điện Tử MoMo App</option>
+                  <option value="COD">Thanh toán Tiền mặt COD</option>
+                </select>
+                <button
+                  class="btn btn-warning w-100 fw-bold"
+                  onclick="executeOrderPayment()"
+                >
+                  Xác Nhận Thanh Toán
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="card p-4 shadow-sm bg-white" id="order-detail-card">
+              <p class="text-muted text-center py-5">
+                Vui lòng nhập ID đơn hàng ở bên trái để xem tiến trình xử lý
+                State Pattern...
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-admin" class="view-section">
+        <h3 class="mb-4 text-danger fw-bold">
+          🛡️ Bảng Điều Khiển Quản Trị Viên
+        </h3>
+
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+          <li class="nav-item">
+            <button
+              class="nav-link active"
+              data-bs-toggle="tab"
+              data-bs-target="#panel-books"
+              type="button"
+              onclick="loadAdminBooksManagement()"
+            >
+              📚 Quản Lý Sách
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#panel-categories"
+              type="button"
+              onclick="loadAdminCategoriesManagement()"
+            >
+              📁 Quản Lý Danh Mục
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#panel-users"
+              type="button"
+              onclick="loadAdminUsersManagement()"
+            >
+              👥 Quản Lý Tài Khoản
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#panel-orders"
+              type="button"
+            >
+              📦 Duyệt Trạng Thái Đơn
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content bg-white p-4 border rounded shadow-sm">
+          <div class="tab-pane fade show active" id="panel-books">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card p-3 bg-light border mb-3">
+                  <h6 class="fw-bold text-success">➕ THÊM SÁCH MỚI</h6>
+                  <div class="mb-1">
+                    <label class="small">Loại sách</label
+                    ><select id="adm-type" class="form-select form-select-sm">
+                      <option value="paper">Paper Book</option>
+                      <option value="ebook">EBook</option>
+                      <option value="audio">Audio Book</option>
+                    </select>
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Danh mục</label
+                    ><select
+                      id="adm-cat"
+                      class="form-select form-select-sm"
+                    ></select>
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Tiêu đề</label
+                    ><input
+                      type="text"
+                      id="adm-title"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Tác giả</label
+                    ><input
+                      type="text"
+                      id="adm-author"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Giá (đ)</label
+                    ><input
+                      type="number"
+                      id="adm-price"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Tồn kho</label
+                    ><input
+                      type="number"
+                      id="adm-stock"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="small">Link ảnh</label
+                    ><input
+                      type="text"
+                      id="adm-img"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <button
+                    class="btn btn-success btn-sm w-100"
+                    onclick="adminCreateBook()"
+                  >
+                    Thêm Mới Sách
+                  </button>
+                </div>
+                <div class="card p-3 bg-light border">
+                  <h6 class="fw-bold text-primary">
+                    ✏️ CẬP NHẬT THÔNG TIN SÁCH
+                  </h6>
+                  <div class="mb-1">
+                    <label class="small text-danger">Đang sửa Sách ID *</label
+                    ><input
+                      type="number"
+                      id="edit-b-id"
+                      class="form-control form-control-sm"
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Tiêu đề</label
+                    ><input
+                      type="text"
+                      id="edit-b-title"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Giá tiền cơ bản</label
+                    ><input
+                      type="number"
+                      id="edit-b-price"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="small">Tồn kho</label
+                    ><input
+                      type="number"
+                      id="edit-b-stock"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <button
+                    class="btn btn-primary btn-sm w-100"
+                    onclick="adminExecuteUpdateBook()"
+                  >
+                    Lưu Cập Nhật
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-8 table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr class="table-dark">
+                      <th>ID</th>
+                      <th>Tiêu Đề</th>
+                      <th>Loại</th>
+                      <th>Giá</th>
+                      <th>Tồn</th>
+                      <th>Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-books-table-list"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-categories">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card p-3 bg-light border mb-3">
+                  <h6 class="fw-bold text-dark">📁 THÊM DANH MỤC MỚI</h6>
+                  <div class="mb-2">
+                    <label class="small">Tên danh mục</label
+                    ><input
+                      type="text"
+                      id="cat-new-name"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <button
+                    class="btn btn-dark btn-sm w-100"
+                    onclick="adminCreateCategory()"
+                  >
+                    Tạo Mới
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-8 table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr class="table-dark">
+                      <th>ID Danh Mục</th>
+                      <th>Tên Phân Loại</th>
+                      <th>Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adm-cat-table-list"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-users">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card p-3 bg-light border mb-3">
+                  <h6 class="fw-bold text-primary">
+                    👤 TẠO TÀI KHOẢN (ADMIN CẤP)
+                  </h6>
+                  <div class="mb-1">
+                    <label class="small">Tên tài khoản (Username)</label
+                    ><input
+                      type="text"
+                      id="adm-u-user"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Mật khẩu</label
+                    ><input
+                      type="password"
+                      id="adm-u-pass"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Họ và Tên</label
+                    ><input
+                      type="text"
+                      id="adm-u-fullname"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-1">
+                    <label class="small">Địa chỉ</label
+                    ><input
+                      type="text"
+                      id="adm-u-address"
+                      class="form-control form-control-sm"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="small">Quyền hạn (Role)</label
+                    ><select id="adm-u-role" class="form-select form-select-sm">
+                      <option value="CUSTOMER">CUSTOMER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </div>
+                  <button
+                    class="btn btn-primary btn-sm w-100"
+                    onclick="adminCreateAccount()"
+                  >
+                    Tạo Tài Khoản
+                  </button>
+                </div>
+                <div class="card p-3 bg-light border">
+                  <h6 class="fw-bold text-warning text-dark">
+                    ✏️ SỬA QUYỀN HẠN TÀI KHOẢN
+                  </h6>
+                  <div class="mb-1">
+                    <label class="small text-danger">Đang sửa User ID *</label
+                    ><input
+                      type="number"
+                      id="edit-u-id"
+                      class="form-control form-control-sm"
+                      readonly
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="small">Quyền hạn mới (Role)</label
+                    ><select
+                      id="edit-u-role"
+                      class="form-select form-select-sm"
+                    >
+                      <option value="CUSTOMER">CUSTOMER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </div>
+                  <button
+                    class="btn btn-warning btn-sm w-100 fw-bold"
+                    onclick="adminExecuteUpdateAccount()"
+                  >
+                    Cập Nhật Quyền
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle">
+                    <thead>
+                      <tr class="table-dark">
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Họ Tên</th>
+                        <th>Quyền</th>
+                        <th>Hành Động</th>
+                      </tr>
+                    </thead>
+                    <tbody id="adm-users-table-list"></tbody>
+                  </table>
+                </div>
+                <div
+                  class="d-flex justify-content-between align-items-center mt-3"
+                >
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    id="btn-page-prev"
+                    onclick="changeUserPage(-1)"
+                  >
+                    ◀ Trang Trước
+                  </button>
+                  <span class="small fw-bold" id="lbl-page-info"
+                    >Trang 1 / 1</span
+                  >
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    id="btn-page-next"
+                    onclick="changeUserPage(1)"
+                  >
+                    Trang Sau ▶
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="panel-orders">
+            <h5>
+              📦 Điều Phối Tiến Trình Đơn Hàng (State Pattern Dynamic Context)
+            </h5>
+            <div class="input-group mb-3 mt-3" style="max-width: 500px">
+              <input
+                type="number"
+                id="adm-order-id"
+                class="form-control"
+                placeholder="Nhập ID đơn cần duyệt"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                onclick="adminProcessOrder('proceed')"
+              >
+                Duyệt Bước Tiếp Theo
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                type="button"
+                onclick="adminProcessOrder('cancel')"
+              >
+                Hủy Đơn
+              </button>
+            </div>
+            <p class="small text-muted">
+              *Luồng State tự động chặn nếu vi phạm nguyên tắc thanh toán (State
+              Pattern Pattern Guard).
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const API_BASE_URL = "http://localhost:5175";
+
+      // State lưu trữ phiên làm việc của người dùng hiện tại
+      let currentUserSession = null;
+
+      // State quản lý phân trang cho danh sách tài khoản
+      let listUsersGlobal = [];
+      let userCurrentPage = 1;
+      const userPageSize = 5;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initApp();
+      });
+
+      function initApp() {
+        loadCategories();
+        loadBooks();
+        refreshCartSummary();
+      }
+
+      function switchView(viewId) {
+        document
+          .querySelectorAll(".view-section")
+          .forEach((section) => section.classList.remove("active"));
+        document.getElementById(viewId).classList.add("active");
+
+        if (viewId === "view-shop") loadBooks();
+        if (viewId === "view-cart") refreshCartSummary();
+      }
+
+      function updateNavbarAuthUI() {
+        const loggedOutZone = document.getElementById("nav-logged-out");
+        const loggedInZone = document.getElementById("nav-logged-in");
+        const adminLink = document.getElementById("nav-admin-link");
+
+        if (currentUserSession) {
+          loggedOutZone.classList.add("d-none");
+          loggedInZone.classList.remove("d-none");
+          document.getElementById("nav-username").innerText =
+            currentUserSession.username;
+          document.getElementById("nav-role-badge").innerText =
+            currentUserSession.role;
+
+          if (currentUserSession.role === "ADMIN") {
+            document.getElementById("nav-role-badge").className =
+              "badge bg-danger";
+            adminLink.classList.remove("d-none");
+          } else {
+            document.getElementById("nav-role-badge").className =
+              "badge bg-secondary";
+            adminLink.classList.add("d-none");
+          }
+        } else {
+          loggedOutZone.classList.remove("d-none");
+          loggedInZone.classList.add("d-none");
+          adminLink.classList.add("d-none");
+        }
+      }
+
+      // ==========================================
+      // 🔐 HỆ THỐNG XỬ LÝ AUTHENTICATION (LOGIN/LOGOUT/REGISTER)
+      // ==========================================
+      async function handleLogin() {
+        let user = document.getElementById("login-user").value;
+        let pass = document.getElementById("login-pass").value;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/login?username=${user}&password=${pass}`,
+            { method: "POST" },
+          );
+          let data = await res.json();
+          if (res.ok) {
+            alert("Đăng nhập thành công!");
+            currentUserSession = { username: data.user, role: data.role };
+            updateNavbarAuthUI();
+            switchView("view-shop");
+            refreshCartSummary();
+          } else {
+            alert(data.message || "Sai tài khoản, mật khẩu!");
+          }
+        } catch (e) {
+          alert("Lỗi kết nối API Auth.");
+        }
+      }
+
+      async function handleRegister() {
+        let user = document.getElementById("reg-user").value;
+        let pass = document.getElementById("reg-pass").value;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/register?username=${user}&password=${pass}`,
+            { method: "POST" },
+          );
+          let data = await res.json();
+          if (res.ok) {
+            alert(data.message);
+            switchView("view-login");
+          } else {
+            alert(data.message);
+          }
+        } catch (e) {
+          alert("Lỗi kết nối API.");
+        }
+      }
+
+      async function handleLogout() {
+        try {
+          await fetch(`${API_BASE_URL}/api/Account/logout`, { method: "POST" });
+          currentUserSession = null;
+          updateNavbarAuthUI();
+          switchView("view-shop");
+          document.getElementById("cart-badge").innerText = "0";
+        } catch (e) {
+          currentUserSession = null;
+          updateNavbarAuthUI();
+        }
+      }
+
+      // ==========================================
+      // 📚 MODULE XỬ LÝ SÁCH & DANH MỤC
+      // ==========================================
+      async function loadCategories() {
+        try {
+          let res = await fetch(`${API_BASE_URL}/api/Category`);
+          let categories = await res.json();
+          let filterSelect = document.getElementById("filter-category");
+          let admSelect = document.getElementById("adm-cat");
+
+          filterSelect.innerHTML =
+            '<option value="">-- Tất cả danh mục --</option>';
+          admSelect.innerHTML = "";
+          categories.forEach((c) => {
+            let opt = `<option value="${c.id}">${c.name}</option>`;
+            filterSelect.innerHTML += opt;
+            admSelect.innerHTML += opt;
+          });
+        } catch (err) {}
+      }
+
+      async function loadBooks() {
+        try {
+          let res = await fetch(`${API_BASE_URL}/api/Book`);
+          let books = await res.json();
+          renderBooksGrid(books);
+        } catch (err) {}
+      }
+
+      function renderBooksGrid(books) {
+        const container = document.getElementById("books-container");
+        container.innerHTML = "";
+        if (books.length === 0) {
+          container.innerHTML = `<div class="w-100 text-center text-muted py-5">Không có cuốn sách nào khớp với tìm kiếm.</div>`;
+          return;
+        }
+        books.forEach((b) => {
+          const defaultImg =
+            "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500";
+          const img =
+            b.imageUrl && b.imageUrl.trim() !== "" ? b.imageUrl : defaultImg;
+          container.innerHTML += `
+                    <div class="col">
+                        <div class="card book-card position-relative">
+                            <span class="badge bg-dark badge-type">${b.bookType}</span>
+                            <img src="${img}" class="card-img-top book-img">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title text-truncate mb-1">${b.title}</h6>
+                                <p class="small text-muted mb-2">TG: ${b.author}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold text-danger">${b.basePrice.toLocaleString()}đ</span>
+                                        <span class="small ${b.stockQuantity > 0 ? "text-success" : "text-danger"}">Kho: ${b.stockQuantity}</span>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm w-100" ${b.stockQuantity <= 0 ? "disabled" : ""} onclick="addBookToCart(${b.id})">
+                                        ${b.stockQuantity > 0 ? "🛒 Thêm vào giỏ" : "Hết hàng"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        });
+      }
+
+      async function searchBooks() {
+        let type = document.getElementById("search-type").value;
+        let keyword = document.getElementById("search-keyword").value;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Book/search?type=${type}&keyword=${encodeURIComponent(keyword)}`,
+          );
+          if (res.status === 404) {
+            renderBooksGrid([]);
+            return;
+          }
+          let data = await res.json();
+          renderBooksGrid(data);
+        } catch (err) {}
+      }
+
+      // ==========================================
+      // 🛡️ ADMIN: QUẢN LÝ KHO SÁCH (TÁCH BIỆT FORM THÊM & SỬA + XÓA)
+      // ==========================================
+      async function loadAdminBooksManagement() {
+        try {
+          let res = await fetch(`${API_BASE_URL}/api/Book`);
+          let books = await res.json();
+          let tbody = document.getElementById("adm-books-table-list");
+          tbody.innerHTML = "";
+          books.forEach((b) => {
+            tbody.innerHTML += `
+                        <tr>
+                            <td>${b.id}</td>
+                            <td><strong>${b.title}</strong></td>
+                            <td><span class="badge bg-secondary">${b.bookType}</span></td>
+                            <td>${b.basePrice.toLocaleString()}đ</td>
+                            <td>${b.stockQuantity}</td>
+                            <td>
+                                <button class="btn btn-xs btn-outline-primary py-0 px-1 me-1" onclick="setupEditBookForm(${b.id}, '${b.title.replace(/'/g, "\\'")}', ${b.basePrice}, ${b.stockQuantity})">Sửa</button>
+                                <button class="btn btn-xs btn-danger py-0 px-1" onclick="adminDeleteBook(${b.id})">Xóa</button>
+                            </td>
+                        </tr>`;
+          });
+        } catch (e) {}
+      }
+
+      async function adminCreateBook() {
+        let type = document.getElementById("adm-type").value;
+        let catId = document.getElementById("adm-cat").value;
+        let title = document.getElementById("adm-title").value;
+        let author = document.getElementById("adm-author").value;
+        let price = document.getElementById("adm-price").value;
+        let stock = document.getElementById("adm-stock").value;
+        let img = document.getElementById("adm-img").value;
+        if (!title || !price) {
+          alert("Vui lòng điền đầy đủ tiêu đề và giá!");
+          return;
+        }
+        try {
+          let url = `${API_BASE_URL}/api/Book?bookType=${type}&categoryId=${catId}&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&price=${price}&stock=${stock}&imageUrl=${encodeURIComponent(img)}`;
+          let res = await fetch(url, { method: "POST" });
+          let data = await res.json();
+          alert(data.message || "Đã lưu thành công!");
+          loadAdminBooksManagement();
+        } catch (e) {}
+      }
+
+      function setupEditBookForm(id, title, price, stock) {
+        document.getElementById("edit-b-id").value = id;
+        document.getElementById("edit-b-title").value = title;
+        document.getElementById("edit-b-price").value = price;
+        document.getElementById("edit-b-stock").value = stock;
+      }
+
+      async function adminExecuteUpdateBook() {
+        let id = document.getElementById("edit-b-id").value;
+        let title = document.getElementById("edit-b-title").value;
+        let price = document.getElementById("edit-b-price").value;
+        let stock = document.getElementById("edit-b-stock").value;
+        if (!id) {
+          alert("Vui lòng chọn 1 cuốn sách từ danh sách để sửa!");
+          return;
+        }
+        try {
+          // Giả định Route cập nhật sách theo cấu trúc PUT thông dụng của hệ thống
+          let res = await fetch(
+            `${API_BASE_URL}/api/Book/${id}?title=${encodeURIComponent(title)}&price=${price}&stock=${stock}`,
+            { method: "PUT" },
+          );
+          if (res.ok) {
+            alert("Cập nhật thông tin sách thành công!");
+            loadAdminBooksManagement();
+          }
+        } catch (e) {
+          alert("Lỗi khi cập nhật thông tin sách.");
+        }
+      }
+
+      async function adminDeleteBook(id) {
+        if (
+          !confirm(
+            `Xác nhận xóa an toàn cuốn sách ID #${id} thông qua AccountProxy?`,
+          )
+        )
+          return;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/admin/delete-book/${id}`,
+            { method: "DELETE" },
+          );
+          let data = await res.json();
+          alert(data.message);
+          loadAdminBooksManagement();
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 🛡️ ADMIN: QUẢN LÝ DANH MỤC (CRUD)
+      // ==========================================
+      async function loadAdminCategoriesManagement() {
+        try {
+          let res = await fetch(`${API_BASE_URL}/api/Category`);
+          let categories = await res.json();
+          let tbody = document.getElementById("adm-cat-table-list");
+          tbody.innerHTML = "";
+          categories.forEach((c) => {
+            tbody.innerHTML += `
+                        <tr>
+                            <td># ${c.id}</td>
+                            <td><strong>${c.name}</strong></td>
+                            <td><button class="btn btn-xs btn-outline-danger py-0 px-1" onclick="adminDeleteCategory(${c.id})">Xóa</button></td>
+                        </tr>`;
+          });
+        } catch (e) {}
+      }
+
+      async function adminCreateCategory() {
+        let name = document.getElementById("cat-new-name").value;
+        if (!name) return;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Category?name=${encodeURIComponent(name)}`,
+            { method: "POST" },
+          );
+          if (res.ok) {
+            alert("Thêm danh mục mới thành công!");
+            document.getElementById("cat-new-name").value = "";
+            loadAdminCategoriesManagement();
+            loadCategories();
+          }
+        } catch (e) {}
+      }
+
+      async function adminDeleteCategory(id) {
+        if (!confirm("Xác nhận xóa danh mục phân loại này?")) return;
+        try {
+          await fetch(`${API_BASE_URL}/api/Category/${id}`, {
+            method: "DELETE",
+          });
+          loadAdminCategoriesManagement();
+          loadCategories();
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 🛡️ ADMIN: QUẢN LÝ TÀI KHOẢN (CRUD + CÓ PHÂN TRANG)
+      // ==========================================
+      async function loadAdminUsersManagement() {
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/admin/all-accounts`,
+          );
+          if (res.status === 403) {
+            alert("Từ chối truy cập! Bạn cần đăng nhập quyền ADMIN.");
+            return;
+          }
+          listUsersGlobal = await res.json();
+          userCurrentPage = 1;
+          renderUsersTableWithPagination();
+        } catch (e) {}
+      }
+
+      function renderUsersTableWithPagination() {
+        let tbody = document.getElementById("adm-users-table-list");
+        tbody.innerHTML = "";
+
+        let totalUsers = listUsersGlobal.length;
+        let totalPages = Math.ceil(totalUsers / userPageSize) || 1;
+
+        // Đảm bảo không vượt ngưỡng trang
+        if (userCurrentPage > totalPages) userCurrentPage = totalPages;
+        if (userCurrentPage < 1) userCurrentPage = 1;
+
+        let startIndex = (userCurrentPage - 1) * userPageSize;
+        let endIndex = Math.min(startIndex + userPageSize, totalUsers);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          let u = listUsersGlobal[i];
+          tbody.innerHTML += `
+                    <tr>
+                        <td>${u.id || i}</td>
+                        <td><b>${u.username}</b></td>
+                        <td>${u.fullName || "Chưa cập nhật"}</td>
+                        <td><span class="badge ${u.role === "ADMIN" ? "bg-danger" : "bg-dark"}">${u.role}</span></td>
+                        <td>
+                            <button class="btn btn-xs btn-outline-warning py-0 px-1 text-dark me-1" onclick="setupEditUserForm(${u.id}, '${u.role}')">Sửa Quyền</button>
+                            <button class="btn btn-xs btn-outline-danger py-0 px-1" onclick="adminDeleteAccount(${u.id})">Xóa</button>
+                        </td>
+                    </tr>`;
+        }
+
+        document.getElementById("lbl-page-info").innerText =
+          `Trang ${userCurrentPage} / ${totalPages}`;
+        document.getElementById("btn-page-prev").disabled =
+          userCurrentPage === 1;
+        document.getElementById("btn-page-next").disabled =
+          userCurrentPage === totalPages;
+      }
+
+      function changeUserPage(direction) {
+        userCurrentPage += direction;
+        renderUsersTableWithPagination();
+      }
+
+      async function adminCreateAccount() {
+        let newUser = {
+          username: document.getElementById("adm-u-user").value,
+          password: document.getElementById("adm-u-pass").value,
+          fullName: document.getElementById("adm-u-fullname").value,
+          address: document.getElementById("adm-u-address").value,
+          role: document.getElementById("adm-u-role").value,
+        };
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/admin/create-account`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newUser),
+            },
+          );
+          let data = await res.json();
+          alert(data.message);
+          loadAdminUsersManagement();
+        } catch (e) {}
+      }
+
+      function setupEditUserForm(id, role) {
+        document.getElementById("edit-u-id").value = id;
+        document.getElementById("edit-u-role").value = role;
+      }
+
+      async function adminExecuteUpdateAccount() {
+        let id = document.getElementById("edit-u-id").value;
+        let role = document.getElementById("edit-u-role").value;
+        if (!id) {
+          alert("Hãy chọn tài khoản cần sửa!");
+          return;
+        }
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/admin/update-account/${id}?role=${role}`,
+            { method: "PUT" },
+          );
+          let data = await res.json();
+          alert(data.message);
+          loadAdminUsersManagement();
+        } catch (e) {}
+      }
+
+      async function adminDeleteAccount(id) {
+        if (!confirm(`Bạn chắc chắn muốn xóa vĩnh viễn tài khoản ID #${id}?`))
+          return;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Account/admin/delete-account/${id}`,
+            { method: "DELETE" },
+          );
+          let data = await res.json();
+          alert(data.message);
+          loadAdminUsersManagement();
+        } catch (e) {}
+      }
+
+      // ==========================================
+      // 🛒 GIỎ HÀNG & ĐƠN HÀNG (GIỮ NGUYÊN TÍNH NĂNG)
+      // ==========================================
+      async function addBookToCart(bookId) {
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Cart/add-item?bookId=${bookId}&quantity=1`,
+            { method: "POST" },
+          );
+          let data = await res.json();
+          if (res.ok) {
+            alert(data.message);
+            refreshCartSummary();
+          } else {
+            alert("Lỗi: " + (data.error || "Không thể thêm sản phẩm"));
+          }
+        } catch (err) {}
+      }
+
+      async function refreshCartSummary() {
+        let vat = document.getElementById("order-vat").checked;
+        let gift = document.getElementById("order-gift").checked;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Cart?applyVat=${vat}&applyGiftWrapping=${gift}`,
+          );
+          let cart = await res.json();
+          document.getElementById("cart-badge").innerText = cart.totalQuantity;
+          document.getElementById("cart-total-price").innerText =
+            cart.cartTotal.toLocaleString() + "đ";
+
+          const tableBody = document.getElementById("cart-items-container");
+          tableBody.innerHTML = "";
+          if (!cart.items || cart.items.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Giỏ hàng trống rỗng!</td></tr>`;
+            return;
+          }
+          cart.items.forEach((i) => {
+            tableBody.innerHTML += `
+                        <tr>
+                            <td><strong class="text-dark">${i.title}</strong><br><small class="text-muted">${i.author}</small></td>
+                            <td><span class="badge bg-secondary">${i.bookType}</span></td>
+                            <td>${i.unitPrice.toLocaleString()}đ</td>
+                            <td><input type="number" class="form-control form-control-sm" value="${i.quantity}" min="1" style="width:70px;" onchange="updateCartQty(${i.productId}, this.value)"></td>
+                            <td class="fw-bold">${i.lineTotal.toLocaleString()}đ</td>
+                            <td><button class="btn btn-sm btn-danger" onclick="removeCartItem(${i.productId})">Xóa</button></td>
+                        </tr>`;
+          });
+        } catch (err) {}
+      }
+
+      async function updateCartQty(bookId, qty) {
+        await fetch(
+          `${API_BASE_URL}/api/Cart/update?bookId=${bookId}&quantity=${qty}`,
+          { method: "POST" },
+        );
+        refreshCartSummary();
+      }
+      async function removeCartItem(bookId) {
+        await fetch(`${API_BASE_URL}/api/Cart/remove/${bookId}`, {
+          method: "POST",
+        });
+        refreshCartSummary();
+      }
+
+      async function checkoutOrder() {
+        let distance = document.getElementById("order-distance").value;
+        let vat = document.getElementById("order-vat").checked;
+        let gift = document.getElementById("order-gift").checked;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Order/create-order?distanceInKm=${distance}&applyVat=${vat}&applyGiftWrapping=${gift}`,
+            { method: "POST" },
+          );
+          let data = await res.json();
+          if (res.ok) {
+            alert(`🎉 Đặt hàng thành công! ID Đơn = ${data.orderId}`);
+            document.getElementById("track-order-id").value = data.orderId;
+            switchView("view-tracking");
+            renderOrderDetails(data.orderId);
+          } else {
+            alert("Lỗi đặt đơn: " + (data.error || "Sai thông tin"));
+          }
+        } catch (e) {}
+      }
+
+      async function getTrackingStatus() {
+        let id = document.getElementById("track-order-id").value;
+        if (!id) return;
+        renderOrderDetails(id);
+      }
+
+      async function renderOrderDetails(orderId) {
+        const container = document.getElementById("order-detail-card");
+        try {
+          let res = await fetch(`${API_BASE_URL}/api/Order/${orderId}/status`);
+          if (!res.ok) {
+            container.innerHTML = `<div class="text-center text-danger py-4">❌ Không tìm thấy đơn hàng mã #${orderId}</div>`;
+            document
+              .getElementById("payment-gate-zone")
+              .classList.add("d-none");
+            return;
+          }
+          let order = await res.json();
+          container.innerHTML = `
+                    <h5 class="text-primary border-bottom pb-2">Thông Tin Chi Tiết Đơn Hàng #${order.orderId}</h5>
+                    <div class="row g-2 my-2 small">
+                        <div class="col-6"><strong>Ngày tạo:</strong> ${order.createdDate}</div>
+                        <div class="col-6"><strong>Tổng tiền:</strong> <span class="text-danger fw-bold">${order.totalAmount.toLocaleString()}đ</span></div>
+                        <div class="col-6"><strong>Cổng thanh toán:</strong> <span class="badge bg-dark">${order.paymentMethod}</span></div>
+                        <div class="col-6"><strong>Trạng thái cốt lõi:</strong> <span class="badge bg-success">${order.systemState}</span></div>
+                    </div>
+                    <div class="alert alert-info mt-3"><h6>📋 Nhật ký phân tích hệ thống:</h6><p class="mb-0 small" style="white-space: pre-line;">${order.detailedStatus}</p></div>`;
+
+          if (order.paymentMethod === "PENDING")
+            document
+              .getElementById("payment-gate-zone")
+              .classList.remove("d-none");
+          else
+            document
+              .getElementById("payment-gate-zone")
+              .classList.add("d-none");
+        } catch (e) {
+          container.innerHTML = "Lỗi nạp dữ liệu.";
+        }
+      }
+
+      async function executeOrderPayment() {
+        let orderId = document.getElementById("track-order-id").value;
+        let method = document.getElementById("payment-method-select").value;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Payment/execute-payment?orderId=${orderId}&paymentMethod=${method}`,
+            { method: "POST" },
+          );
+          let data = await res.json();
+          alert(data.message || data.error);
+          renderOrderDetails(orderId);
+        } catch (e) {}
+      }
+
+      async function adminProcessOrder(action) {
+        let orderId = document.getElementById("adm-order-id").value;
+        if (!orderId) return;
+        try {
+          let res = await fetch(
+            `${API_BASE_URL}/api/Order/${orderId}/process-next-step?action=${action}`,
+            { method: "PUT" },
+          );
+          let data = await res.json();
+          if (res.ok)
+            alert(`Thành công! Trạng thái mới: ${data.currentStateName}`);
+          else alert("Từ chối: " + data.error);
+        } catch (e) {}
+      }
+    </script>
+  </body>
+</html>

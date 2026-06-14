@@ -78,6 +78,32 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
             return Forbid("Bạn không có quyền! Yêu cầu tài khoản ADMIN.");
         }
 
+        [HttpPut("admin/update-account/{id}")]
+        public IActionResult UpdateAccountByAdmin(int id, [FromQuery] string role, [FromQuery] int points = 0)
+        {
+            bool isAllowed = _accountProxy.ExecuteAdminAction(() => {
+                _accountService.UpdateAccountByAdmin(id, role, points);
+            });
+
+            if (isAllowed) 
+                return Ok(new { Message = $"Cập nhật quyền thành công cho tài khoản ID: {id} sang [{role}]." });
+                
+            return Forbid("Bạn không có quyền! Yêu cầu tài khoản ADMIN.");
+        }
+
+        [HttpDelete("admin/delete-account/{id}")]
+        public IActionResult DeleteAccountByAdmin(int id)
+        {
+            bool isAllowed = _accountProxy.ExecuteAdminAction(() => {
+                _accountService.DeleteAccountByAdmin(id);
+            });
+
+            if (isAllowed) 
+                return Ok(new { Message = $"Đã xóa vĩnh viễn tài khoản ID: {id} khỏi hệ thống." });
+                
+            return Forbid("Bạn không có quyền! Yêu cầu tài khoản ADMIN.");
+        }
+
         [HttpDelete("admin/delete-book/{id}")]
         public IActionResult DeleteBookSecurely(int id)
         {

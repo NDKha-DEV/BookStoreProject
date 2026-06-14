@@ -7,6 +7,13 @@ using Bookstore.Web.Modules.NV4_Order.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllFrontend",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
 // -----------------------------------------------------------------------------
 // 🛠️ KHU VỰC CẤU HÌNH DEPENDENCY INJECTION (DI CONTAINER)
 // -----------------------------------------------------------------------------
@@ -47,6 +54,8 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v1.json", "E-Commerce Bookstore API v1");
     }); 
 }
+
+app.UseCors("AllowAllFrontend");
 
 app.UseHttpsRedirection();
 
