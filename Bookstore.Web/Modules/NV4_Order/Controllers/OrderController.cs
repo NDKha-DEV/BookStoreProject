@@ -78,6 +78,32 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
             }
         }
 
+        [HttpGet("{id}/status")]
+        public IActionResult GetOrderStatus(int id)
+        {
+            try
+            {
+                // Lấy chi tiết đơn hàng thông qua OrderService
+                var order = _orderService.GetOrderDetails(id);
+                
+                // Trả về JSON chứa các thông tin trạng thái quan trọng
+                return Ok(new {
+                    OrderId = order.Id,
+                    CreatedDate = order.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                    TotalAmount = order.TotalAmount,
+                    PaymentMethod = order.PaymentMethod,
+                    SystemState = order.CurrentState.GetStatusName(), // Tên trạng thái từ State Pattern
+                    DetailedStatus = order.GetFullStatus(), // Chi tiết Ship & Paid
+                    TotalItems = order.OrderItems.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                // Bắt lỗi nếu ID đơn hàng không tồn tại
+                return NotFound(new { Error = ex.Message });
+            }
+        }
+
         [HttpPut("{id}/process-next-step")]
         public IActionResult Process(int id, [FromQuery] string action = "proceed")
         {

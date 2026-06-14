@@ -6,7 +6,7 @@ namespace Bookstore.Core.Models.NV1_Account
         bool Register(string username, string password);
         bool Login(string username, string password);
         void Logout();
-        bool UpdateProfile(string newPassword);
+        bool UpdateProfile(string fullName, string address, string? newPassword);
         string GetCurrentUserRole(); 
     }
 }

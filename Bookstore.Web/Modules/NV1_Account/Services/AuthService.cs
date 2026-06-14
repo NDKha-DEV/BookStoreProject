@@ -61,21 +61,29 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
             return true;
         }
 
-        public bool UpdateProfile(string newPassword)
+        public bool UpdateProfile(string fullName, string address, string? newPassword)
         {
             if (CurrentLoggedInUser == null) return false;
             
             var user = MockDataStore.Users.FirstOrDefault(u => u.Id == CurrentLoggedInUser.Id);
             if (user != null)
             {
-                string hash = PasswordHasher.HashPassword(newPassword, out string salt);
-                user.PasswordHash = hash;
-                user.PasswordSalt = salt;
+                // Cập nhật thông tin cơ bản
+                user.FullName = fullName;
+                user.Address = address;
+
+                // Chỉ cập nhật mật khẩu nếu người dùng có gửi password mới lên
+                if (!string.IsNullOrWhiteSpace(newPassword))
+                {
+                    string hash = PasswordHasher.HashPassword(newPassword, out string salt);
+                    user.PasswordHash = hash;
+                    user.PasswordSalt = salt;
+                }
+                
                 return true;
             }
             return false;
         }
-
         public string GetCurrentUserRole()
         {
             return CurrentLoggedInUser?.Role ?? "Guest";

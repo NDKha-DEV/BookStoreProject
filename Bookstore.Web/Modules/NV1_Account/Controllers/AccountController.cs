@@ -9,6 +9,12 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
+        public class UpdateProfileDto 
+        {
+            public string FullName { get; set; } = string.Empty;
+            public string Address { get; set; } = string.Empty;
+            public string? NewPassword { get; set; } 
+        }
         private readonly AccountProxy _accountProxy = new AccountProxy();
         private readonly AccountService _accountService = new AccountService();
 
@@ -41,11 +47,11 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
             return BadRequest(new { Message = "Tên tài khoản đã tồn tại!" });
         }
 
-        [HttpPut("profile/update-password")]
-        public IActionResult UpdateProfile([FromQuery] string newPassword)
+        [HttpPut("profile/update")]
+        public IActionResult UpdateProfile([FromBody] UpdateProfileDto request)
         {
-            bool isSuccess = AuthService.Instance.UpdateProfile(newPassword);
-            if (isSuccess) return Ok(new { Message = "Cập nhật mật khẩu cá nhân thành công!" });
+            bool isSuccess = AuthService.Instance.UpdateProfile(request.FullName, request.Address, request.NewPassword);
+            if (isSuccess) return Ok(new { Message = "Cập nhật thông tin cá nhân (Tên, Địa chỉ, Mật khẩu) thành công!" });
             return Unauthorized(new { Message = "Bạn chưa đăng nhập hệ thống!" });
         }
 
