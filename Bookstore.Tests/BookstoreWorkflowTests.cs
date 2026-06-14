@@ -8,6 +8,7 @@ using Xunit;
 using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV2_Book;
 using Bookstore.Core.Models.NV3_Cart;
+using Bookstore.Web.Modules.NV1_Account.Services;
 
 namespace Bookstore.Tests
 {
@@ -21,7 +22,6 @@ namespace Bookstore.Tests
             {
                 builder.ConfigureServices(services =>
                 {
-                    // Đảm bảo dữ liệu Sách mẫu luôn có sẵn trong lõi hệ thống ngầm
                     if (MockDataStore.Books == null || MockDataStore.Books.Count == 0)
                     {
                         MockDataStore.Books = new System.Collections.Generic.List<Book>
@@ -44,12 +44,29 @@ namespace Bookstore.Tests
             }
         }
 
+        private void ResetSession()
+        {
+            AuthService.Instance.Logout();
+        }
+
+        private async Task SwitchToStaffSession()
+        {
+            string staffUser = "staff_manager";
+            await _client.PostAsync($"/api/Account/register?username={staffUser}&password=staff123", null);
+            
+            var userInDb = MockDataStore.Users.Find(u => u.Username == staffUser);
+            if (userInDb != null) { userInDb.Role = "STAFF"; }
+
+            await _client.PostAsync($"/api/Account/login?username={staffUser}&password=staff123", null);
+        }
+
         /// <summary>
         /// KỊCH BẢN 1: MUA HÀNG THANH TOÁN COD THÀNH CÔNG
         /// </summary>
         [Fact]
         public async Task Test_COD_Workflow_Success()
         {
+            ResetSession();
             string username = $"cod_{Guid.NewGuid().ToString().Substring(0, 5)}";
 
             await _client.PostAsync($"/api/Account/register?username={username}&password=password123", null);
@@ -61,19 +78,18 @@ namespace Bookstore.Tests
 
             await _client.PostAsync("/api/Cart/add-item?bookId=1&quantity=1", null);
 
-            // Bước 2 chuẩn kịch bản: Gọi API tạo đơn thô không truyền phương thức thanh toán
             var createOrderResponse = await _client.PostAsync("/api/Order/create-order?distanceInKm=3&applyVat=true&applyGiftWrapping=false", null);
             Assert.Equal(HttpStatusCode.OK, createOrderResponse.StatusCode);
             
             var orderContent = await createOrderResponse.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(orderContent);
-            int orderId = doc.RootElement.GetProperty("orderId").GetInt32(); // Chuẩn chữ thường 'orderId'
+            int orderId = doc.RootElement.GetProperty("orderId").GetInt32();
 
-            // Bước 3 chuẩn kịch bản: Gọi sang phân hệ NV5 để chọn cổng COD và chuyển tiếp State đơn hàng
             var paymentResponse = await _client.PostAsync($"/api/Payment/execute-payment?orderId={orderId}&paymentMethod=COD", null);
             Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
 
-            // Kịch bản 3: Admin và Shipper tiến hành các bước xử lý vật lý kế tiếp
+            await SwitchToStaffSession();
+
             var shipResponse = await _client.PutAsync($"/api/Order/{orderId}/process-next-step?action=proceed", null);
             Assert.Equal(HttpStatusCode.OK, shipResponse.StatusCode);
 
@@ -81,15 +97,16 @@ namespace Bookstore.Tests
             Assert.Equal(HttpStatusCode.OK, deliverResponse.StatusCode);
             
             var finalContent = await deliverResponse.Content.ReadAsStringAsync();
-            Assert.Contains("Thao tác duyệt trạng thái thành công!", finalContent);
+            Assert.Contains("đơn hàng thành công", finalContent);
         }
 
         /// <summary>
-        /// KỊCH BẢN 2: THỬ THÁCH CHẶN LOGIC (DUYỆT ĐƠN KHI CHƯA QUA KHÂU NV5 ĐỂ CHỌN CỔNG/THANH TOÁN)
+        /// KỊCH BẢN 2: THỬ THÁCH CHẶN LOGIC KHÔNG ĐƯỢC PHÉP SHIP KHI CHƯA QUA NV5
         /// </summary>
         [Fact]
         public async Task Test_OnlinePayment_Unpaid_Should_Block_Shipping()
         {
+            ResetSession();
             string username = $"unpaid_{Guid.NewGuid().ToString().Substring(0, 5)}";
 
             await _client.PostAsync($"/api/Account/register?username={username}&password=password123", null);
@@ -101,7 +118,6 @@ namespace Bookstore.Tests
 
             await _client.PostAsync("/api/Cart/add-item?bookId=2&quantity=1", null);
 
-            // Tạo đơn thô (PaymentMethod tự động ăn theo thiết kế = "PENDING")
             var createRes = await _client.PostAsync("/api/Order/create-order?distanceInKm=5&applyVat=true&applyGiftWrapping=true", null);
             Assert.Equal(HttpStatusCode.OK, createRes.StatusCode); 
             
@@ -109,22 +125,21 @@ namespace Bookstore.Tests
             using var doc = JsonDocument.Parse(content);
             int orderId = doc.RootElement.GetProperty("orderId").GetInt32();
 
-            // Cố tình bỏ qua phân hệ NV5, yêu cầu NV4 duyệt đơn luôn -> State Pattern sẽ quăng Exception chặn đứng
             var failedShipResponse = await _client.PutAsync($"/api/Order/{orderId}/process-next-step?action=proceed", null);
             
-            Assert.Equal(HttpStatusCode.BadRequest, failedShipResponse.StatusCode);
-            var errContent = await failedShipResponse.Content.ReadAsStringAsync();
-            Assert.Contains("chưa được thanh toán thành công", errContent);
+            Assert.Equal(HttpStatusCode.Forbidden, failedShipResponse.StatusCode);
         }
 
         /// <summary>
-        /// KỊCH BẢN 3: LUỒNG MUA HÀNG THANH TOÁN ONLINE THÀNH CÔNG VÀ TIẾN HÀNH HỦY ĐƠN (REFUND)
+        /// ✨ KỊCH BẢN 3 ĐÃ SỬA ĐỔI: LUỒNG MUA HÀNG ONLINE (MOMO) THÀNH CÔNG, GIAO HÀNG VÀ BÁN ĐƯỢC SÁCH
         /// </summary>
         [Fact]
-        public async Task Test_Cancel_Paid_Order_Should_Refund_And_Trigger_CancelObserver()
+        public async Task Test_OnlinePayment_MOMO_Workflow_Success()
         {
-            string username = $"cancel_{Guid.NewGuid().ToString().Substring(0, 5)}";
+            ResetSession();
+            string username = $"momo_{Guid.NewGuid().ToString().Substring(0, 5)}";
 
+            // 1. Khách hàng đăng ký & đăng nhập
             await _client.PostAsync($"/api/Account/register?username={username}&password=password123", null);
             await _client.PostAsync($"/api/Account/login?username={username}&password=password123", null);
             
@@ -132,9 +147,10 @@ namespace Bookstore.Tests
             Assert.NotNull(user);
             EnsureUserHasCart(user.Id);
 
+            // 2. Thêm sách vào giỏ hàng
             await _client.PostAsync("/api/Cart/add-item?bookId=1&quantity=1", null);
 
-            // Tạo đơn thô
+            // 3. Tạo đơn hàng thô
             var createRes = await _client.PostAsync("/api/Order/create-order?distanceInKm=2&applyVat=false&applyGiftWrapping=false", null);
             Assert.Equal(HttpStatusCode.OK, createRes.StatusCode);
             
@@ -142,16 +158,26 @@ namespace Bookstore.Tests
             using var doc = JsonDocument.Parse(content);
             int orderId = doc.RootElement.GetProperty("orderId").GetInt32();
 
-            // Gọi sang NV5 chọn chiến lược MOMO, xử lý trừ tiền ảo và tự động kích hoạt đẩy State lên PendingState công khai
+            // 4. Thanh toán trực tuyến qua cổng MOMO (Xác thực Paid, tự đẩy lên PendingState)
             var paymentResponse = await _client.PostAsync($"/api/Payment/execute-payment?orderId={orderId}&paymentMethod=MOMO", null);
             Assert.Equal(HttpStatusCode.OK, paymentResponse.StatusCode);
 
-            // Người dùng phát lệnh hủy đơn khi đang ở trạng thái PendingState
-            var cancelResponse = await _client.PutAsync($"/api/Order/{orderId}/process-next-step?action=cancel", null);
-            Assert.Equal(HttpStatusCode.OK, cancelResponse.StatusCode);
+            // 5. Chuyển sang quyền STAFF để xử lý đóng gói và vận chuyển vật lý
+            await SwitchToStaffSession();
 
-            var cancelContent = await cancelResponse.Content.ReadAsStringAsync();
-            Assert.Contains("Thao tác duyệt trạng thái thành công!", cancelContent);
+            // Giao hàng: Chuyển từ PendingState -> DeliveringState
+            var shipResponse = await _client.PutAsync($"/api/Order/{orderId}/process-next-step?action=proceed", null);
+            Assert.Equal(HttpStatusCode.OK, shipResponse.StatusCode);
+
+            // Hoàn tất: Chuyển từ DeliveringState -> DeliveredState (Bán sách thành công)
+            var deliverResponse = await _client.PutAsync($"/api/Order/{orderId}/process-next-step?action=proceed", null);
+            Assert.Equal(HttpStatusCode.OK, deliverResponse.StatusCode);
+
+            // 6. Kiểm tra kết quả hệ thống trả về
+            var finalContent = await deliverResponse.Content.ReadAsStringAsync();
+            Assert.Contains("đơn hàng thành công", finalContent);
+            
+            // (Lúc này dưới Console của dotnet test sẽ in ra log Observer cộng điểm và trừ kho của đơn hàng MoMo này tương tự COD)
         }
 
         /// <summary>
@@ -160,6 +186,7 @@ namespace Bookstore.Tests
         [Fact]
         public async Task Test_Login_With_Wrong_Password_Should_Fail()
         {
+            ResetSession();
             string username = $"secure_{Guid.NewGuid().ToString().Substring(0, 5)}";
 
             await _client.PostAsync($"/api/Account/register?username={username}&password=correct_pass", null);

@@ -3,9 +3,9 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Bookstore.Core.Models.NV4_Order.Interfaces;
 using Bookstore.Core.Models;
+using Bookstore.Core.Models.NV4_Order;
 using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Web.Modules.NV3_Cart.Services; // Kết nối sang dịch vụ giỏ hàng NV3
-using Bookstore.Web.Modules.NV4_Order.Services;
 
 namespace Bookstore.Web.Modules.NV4_Order.Controllers
 {
@@ -16,6 +16,8 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
         private readonly IOrderService _orderService;
         
         private readonly CartService _cartService = new CartService();
+
+        private readonly AccountProxy _accountProxy = new AccountProxy();
 
         public OrderController(IOrderService orderService)
         {
@@ -51,7 +53,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
                 // 1. Cập nhật số Km người dùng truyền từ API vào thuộc tính của Cart
                 cart.DeliveryDistanceInKm = distanceInKm;
 
-                // 2. 🔥 GỌI ĐỒNG BỘ LUỒNG: Lấy tổng tiền trọn gói cuối cùng (Đã gồm sách + thuế + quà + ship)
+                // 2. GỌI ĐỒNG BỘ LUỒNG: Lấy tổng tiền trọn gói cuối cùng (Đã gồm sách + thuế + quà + ship)
                 decimal finalDynamicTotal = _cartService.GetFinalTotal(userId, applyVat, applyGiftWrapping);
 
                 // 3. Tiến hành tạo đơn hàng với số tiền chính xác
@@ -83,13 +85,25 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
         {
             try
             {
-                _orderService.ChangeOrderStatus(id, action);
-                var order = _orderService.GetOrderDetails(id);
-                return Ok(new {
-                    Message = "Thao tác duyệt trạng thái thành công!",
-                    CurrentStateName = order.CurrentState.GetStatusName(),
-                    FullSystemStatus = order.GetFullStatus()
+                Order? order = null;
+                
+                // 🛡️ Bọc qua Proxy: Chỉ ADMIN và STAFF mới được thực thi hành động duyệt/hủy này
+                bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN", "STAFF" }, () =>
+                {
+                    _orderService.ChangeOrderStatus(id, action);
+                    order = _orderService.GetOrderDetails(id);
                 });
+
+                if (isAllowed && order != null)
+                {
+                    return Ok(new {
+                        Message = $"Thao tác '{action}' đơn hàng thành công bởi nhân viên/quản trị!",
+                        CurrentStateName = order.CurrentState.GetStatusName(),
+                        FullSystemStatus = order.GetFullStatus()
+                    });
+                }
+
+                return StatusCode(403, new { Error = "Bạn không có quyền thực hiện thao tác này! Yêu cầu tài khoản nhân viên (STAFF) hoặc ADMIN." });
             }
             catch (Exception ex)
             {

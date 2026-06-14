@@ -25,7 +25,8 @@ namespace Bookstore.Core.Models
             {
                 new User { Id = 1, Username = "admin_bookstore", PasswordHash = adminHash, PasswordSalt = adminSalt, Role = "ADMIN" },
                 new User { Id = 2, Username = "minh_customer", PasswordHash = minhHash, PasswordSalt = minhSalt, Role = "CUSTOMER" },
-                new User { Id = 3, Username = "long_customer", PasswordHash = longHash, PasswordSalt = longSalt, Role = "CUSTOMER" }
+                new User { Id = 3, Username = "long_customer", PasswordHash = longHash, PasswordSalt = longSalt, Role = "CUSTOMER" },
+                new User { Id = 4, Username = "staff_member", PasswordHash = longHash, PasswordSalt = longSalt, Role = "STAFF" }
             };
         }
 

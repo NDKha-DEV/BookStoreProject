@@ -11,7 +11,7 @@ namespace Bookstore.Core.Models.NV1_Account
         public string PasswordSalt { get; set; } = string.Empty; 
         public string Email { get; set; } = string.Empty;
         
-        // Phân quyền: "Admin" hoặc "Customer"
+        // Phân quyền: "Admin" hoặc "Customer" hoặc "Staff" (nhân viên)
         public string Role { get; set; } = "Customer"; 
         
         public int LoyaltyPoints { get; set; } = 0; 

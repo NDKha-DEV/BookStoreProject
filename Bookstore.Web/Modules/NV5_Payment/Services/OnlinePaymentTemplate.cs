@@ -9,6 +9,8 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
 {
     public abstract class OnlinePaymentTemplate : IPaymentStrategy
     {
+        // Thuộc tính này sẽ được các lớp con định nghĩa để ghi nhận phương thức thanh toán
+        protected abstract string PaymentMethodName { get; }
         public bool ProcessPayment(Order order)
         {
             InitTransaction(order);
@@ -21,7 +23,7 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
 
             bool apiResult = SendApiRequest(order.TotalAmount);
             
-            // 🔥 ĐỒNG BỘ: Lưu dữ liệu giao dịch trực tiếp vào bộ nhớ hệ thống
+            // Lưu dữ liệu giao dịch trực tiếp vào bộ nhớ hệ thống
             SavePaymentToMockData(order.Id, order.TotalAmount, apiResult);
 
             return apiResult;
@@ -45,7 +47,7 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
                 OrderId = orderId,
                 Amount = amount,
                 PaymentDate = DateTime.Now,
-                PaymentMethod = this.GetType().Name.Replace("Payment", ""),
+                PaymentMethod = this.PaymentMethodName,
                 IsSuccess = isSuccess
             };
             MockDataStore.Payments.Add(paymentRecord);

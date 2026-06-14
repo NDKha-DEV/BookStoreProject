@@ -12,7 +12,7 @@ namespace Bookstore.Web.Modules.NV4_Order.States
         public void Proceed(Order order)
         {
             // Kiểm tra ràng buộc: Nếu chọn thanh toán Online mà chưa trả tiền thì cấm duyệt
-            if (order.PaymentMethod == "ONLINE" && order.PaymentStatus == "Unpaid")
+            if (order.PaymentMethod != "COD" && order.PaymentStatus == "Unpaid")
             {
                 throw new InvalidOperationException("Đơn hàng trực tuyến chưa được thanh toán thành công. Không thể duyệt giao hàng!");
             }

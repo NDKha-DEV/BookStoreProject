@@ -9,6 +9,7 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
     // --- 1. Cổng MoMo ---
     public class MoMoPayment : OnlinePaymentTemplate
     {
+        protected override string PaymentMethodName => "MOMO";
         protected override bool ValidateAndSign()
         {
             Console.WriteLine("[MoMo] Khởi tạo mã hóa SHA256 bảo mật...");
@@ -25,6 +26,7 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
     // --- 2. Thẻ Visa/Mastercard ---
     public class CardPayment : OnlinePaymentTemplate
     {
+        protected override string PaymentMethodName => "CARD";
         protected override bool ValidateAndSign()
         {
             Console.WriteLine("[Card] Xác thực định dạng thẻ hợp lệ...");
@@ -41,6 +43,7 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
     // --- 3. Quét mã VietQR ---
     public class BankAccountPayment : OnlinePaymentTemplate
     {
+        protected override string PaymentMethodName => "VIETQR";
         protected override bool ValidateAndSign()
         {
             Console.WriteLine("[VietQR] Sinh mã QR Code động theo thông tin hóa đơn...");

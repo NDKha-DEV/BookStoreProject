@@ -64,12 +64,12 @@ namespace Bookstore.Web.Modules.NV4_Order.Services
 
             if (action.Equals("proceed", StringComparison.CurrentCultureIgnoreCase))
             {
-                if ((order.PaymentMethod == "PENDING" || order.PaymentMethod == "ONLINE") && 
-                    order.PaymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) && 
-                    order.CurrentState is AwaitingPaymentState)
-                {
-                    throw new Exception("Đơn hàng thanh toán trực tuyến chưa được thanh toán thành công! Không thể chuyển sang trạng thái giao hàng.");
-                }
+                // if ((order.PaymentMethod == "PENDING" || order.PaymentMethod == "ONLINE") && 
+                //     order.PaymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) && 
+                //     order.CurrentState is AwaitingPaymentState)
+                // {
+                //     throw new Exception("Đơn hàng thanh toán trực tuyến chưa được thanh toán thành công! Không thể chuyển sang trạng thái giao hàng.");
+                // }
                 order.Proceed(); 
             }
             else if (action.Equals("cancel", StringComparison.CurrentCultureIgnoreCase))

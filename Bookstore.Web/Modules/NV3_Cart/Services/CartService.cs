@@ -11,13 +11,14 @@ namespace Bookstore.Web.Modules.NV3_Cart.Services
 {
     public class CartService
     {
+        private readonly ICartStorage _cartStorage = new MemoryStorageAdapter();
         public Cart GetCartByUserId(int userId)
         {
-            if (!MockDataStore.UserCarts.ContainsKey(userId))
+            if (!_cartStorage.HasCart(userId))
             {
-                MockDataStore.UserCarts[userId] = new Cart();
+                _cartStorage.SaveCart(userId, new Cart());
             }
-            return MockDataStore.UserCarts[userId];
+            return _cartStorage.GetCart(userId);
         }
 
         public void AddToCart(int userId, int bookId, int quantity)
@@ -41,6 +42,8 @@ namespace Bookstore.Web.Modules.NV3_Cart.Services
                 if (item.Quantity + quantity > book.StockQuantity) throw new Exception("NotEnoughStock");
                 item.Quantity += quantity;
             }
+            // Lưu lại giỏ hàng sau khi đã cập nhật
+            _cartStorage.SaveCart(userId, cart);
         }
 
         public void UpdateQuantity(int userId, int bookId, int quantity)
@@ -52,18 +55,23 @@ namespace Bookstore.Web.Modules.NV3_Cart.Services
             if (quantity <= 0)
             {
                 cart.Items.Remove(item);
+                _cartStorage.SaveCart(userId, cart);
                 return;
             }
 
             var book = MockDataStore.Books.FirstOrDefault(b => b.Id == bookId);
             if (book != null && quantity > book.StockQuantity) item.Quantity = book.StockQuantity;
             else item.Quantity = quantity;
+
+            _cartStorage.SaveCart(userId, cart);
         }
 
         public void RemoveFromCart(int userId, int bookId)
         {
             var cart = GetCartByUserId(userId);
             cart.Items.RemoveAll(i => i.Product.Id == bookId);
+            
+            _cartStorage.SaveCart(userId, cart);
         }
 
         // 🔥 ĐÂY CHÍNH LÀ NƠI ÁP DỤNG DECORATOR PATTERN KHI GỌI TÍNH TỔNG TIỀN

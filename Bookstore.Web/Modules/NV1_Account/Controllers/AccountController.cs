@@ -53,7 +53,8 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         public IActionResult GetAllAccounts()
         {
             List<User>? data = null;
-            bool isAllowed = _accountProxy.ExecuteAdminAction(() => {
+            // Chỉ ADMIN mới được xem tài khoản
+            bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN" }, () => {
                 data = _accountService.GetAllAccounts();
             });
 
@@ -64,7 +65,8 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpPost("admin/create-account")]
         public IActionResult CreateAccountByAdmin([FromBody] User newUser)
         {
-            bool isAllowed = _accountProxy.ExecuteAdminAction(() => {
+            // Chỉ ADMIN mới được tạo tài khoản
+            bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN" }, () => {
                 _accountService.CreateAccountByAdmin(newUser);
             });
 
@@ -75,13 +77,14 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpDelete("admin/delete-book/{id}")]
         public IActionResult DeleteBookSecurely(int id)
         {
-            bool isAllowed = _accountProxy.ExecuteAdminAction(() =>
+            // Cả ADMIN và STAFF (nhân viên) đều có quyền xóa/quản lý sách!
+            bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN", "STAFF" }, () =>
             {
-                System.Console.WriteLine($"[CORE ACTION] Hệ thống tiến hành xóa cuốn sách ID {id} khỏi danh mục.");
+                System.Console.WriteLine($"[CORE ACTION] Tiến hành xóa cuốn sách ID {id} khỏi danh mục.");
             });
 
             if (isAllowed) return Ok(new { Message = $"Hành động thành công: Đã xóa sách ID {id}." });
-            return Forbid("Bạn không có quyền truy cập tính năng này! (Yêu cầu quyền Admin)");
+            return Forbid("Bạn không có quyền truy cập tính năng này! (Yêu cầu quyền ADMIN hoặc STAFF)");
         }
     }
 }
