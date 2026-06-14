@@ -50,5 +50,7 @@ namespace Bookstore.Core.Models
             { 2, new Cart() },
             { 3, new Cart() }
         };
+
+        public static List<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

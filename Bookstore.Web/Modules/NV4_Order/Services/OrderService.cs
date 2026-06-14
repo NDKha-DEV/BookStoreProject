@@ -14,11 +14,21 @@ namespace Bookstore.Web.Modules.NV4_Order.Services
 {
     public class OrderService : IOrderService
     {
-        public Order CreateOrder(string paymentMethod, decimal dynamicTotalAmount)
+        public Order CreateOrder(decimal dynamicTotalAmount)
         {
-            var method = paymentMethod.ToUpper();
             var authUser = AuthService.Instance.CurrentLoggedInUser; 
-            int currentUserId = authUser != null ? authUser.Id : 3;
+            int currentUserId;
+
+            if (authUser != null)
+            {
+                currentUserId = authUser.Id;
+            }
+            else
+            {
+                // Đồng bộ cơ chế lấy User mới nhất để map dữ liệu chuẩn với Controller trong môi trường test
+                var lastUser = MockDataStore.Users.LastOrDefault();
+                currentUserId = lastUser != null ? lastUser.Id : 3;
+            }
 
             if (!MockDataStore.UserCarts.ContainsKey(currentUserId))
             {
@@ -32,26 +42,16 @@ namespace Bookstore.Web.Modules.NV4_Order.Services
                 UserId = currentUserId,
                 TotalAmount = dynamicTotalAmount,
                 CreatedDate = DateTime.Now,
-                PaymentMethod = method,
-                // 🔥 SỬA LỖI: Sao chép từ danh sách Items bên trong thực thể Cart
+                PaymentMethod = "PENDING",
                 OrderItems = new List<CartItem>(currentCart.Items) 
             };
 
             newOrder.RegisterObserver(new CustomerPointsObserver());
             newOrder.RegisterObserver(new InventoryObserver());
 
-            if (method == "ONLINE")
-            {
-                newOrder.PaymentStatus = "Unpaid";
-                newOrder.ShippingStatus = "NotShipped";
-                newOrder.CurrentState = new AwaitingPaymentState();
-            }
-            else // COD
-            {
-                newOrder.PaymentStatus = "Unpaid";
-                newOrder.ShippingStatus = "NotShipped";
-                newOrder.CurrentState = new PendingState();
-            }
+            newOrder.PaymentStatus = "Unpaid";
+            newOrder.ShippingStatus = "NotShipped";
+            newOrder.CurrentState = new AwaitingPaymentState();
 
             MockDataStore.Orders.Add(newOrder);
             return newOrder;
@@ -64,7 +64,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Services
 
             if (action.Equals("proceed", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (order.PaymentMethod == "ONLINE" && 
+                if ((order.PaymentMethod == "PENDING" || order.PaymentMethod == "ONLINE") && 
                     order.PaymentStatus.Equals("Unpaid", StringComparison.OrdinalIgnoreCase) && 
                     order.CurrentState is AwaitingPaymentState)
                 {

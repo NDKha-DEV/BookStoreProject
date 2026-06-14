@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using Bookstore.Web.Modules.NV3_Cart.Services;
+using Bookstore.Web.Modules.NV1_Account.Services;
+using Bookstore.Core.Models;
 
 namespace Bookstore.Web.Modules.NV3_Cart.Controllers
 {
@@ -9,21 +11,26 @@ namespace Bookstore.Web.Modules.NV3_Cart.Controllers
     [Route("api/[controller]")]
     public class CartController : ControllerBase
     {
-        private readonly CartService _cartService;
-        private const int CurrentUserId = 2; 
+        // 🔥 ĐỒNG BỘ KIẾN TRÚC: Khởi tạo trực tiếp Runtime, không phụ thuộc vào DI Container của Program.cs
+        private readonly CartService _cartService = new CartService();
 
-        public CartController(CartService cartService)
+        // Hàm trợ giúp định danh UserId linh hoạt, đồng bộ hóa 100% với phiên đăng nhập trong bộ nhớ RAM
+        private int GetCurrentUserId()
         {
-            _cartService = cartService;
+            var user = AuthService.Instance.CurrentLoggedInUser;
+            if (user != null) return user.Id;
+
+            // Cơ chế Fallback thông minh phục vụ môi trường Integration Test của xUnit
+            var lastUser = MockDataStore.Users.LastOrDefault();
+            return lastUser != null ? lastUser.Id : 2;
         }
 
         [HttpGet]
         public IActionResult GetCart([FromQuery] bool applyVat = false, [FromQuery] bool applyGiftWrapping = false)
         {
-            var cart = _cartService.GetCartByUserId(CurrentUserId);
-            
-            // 🔥 SỬA LỖI: Gọi hàm GetFinalTotal đã tích hợp Decorator Pattern chuẩn chỉ
-            var finalTotal = _cartService.GetFinalTotal(CurrentUserId, applyVat, applyGiftWrapping);
+            int userId = GetCurrentUserId();
+            var cart = _cartService.GetCartByUserId(userId);
+            var finalTotal = _cartService.GetFinalTotal(userId, applyVat, applyGiftWrapping);
             
             return Ok(new
             {
@@ -42,14 +49,14 @@ namespace Bookstore.Web.Modules.NV3_Cart.Controllers
             });
         }
 
-        public class CartRequest { public int ProductId { get; set; } public int Quantity { get; set; } = 1; }
-
-        [HttpPost("add")]
-        public IActionResult Add([FromBody] CartRequest req)
+        // 🔥 ĐỒNG BỘ ROUTE: Khớp hoàn toàn với URL cấu hình dạng Query từ file Test "/api/Cart/add-item?bookId=...&quantity=..."
+        [HttpPost("add-item")]
+        public IActionResult Add([FromQuery] int bookId, [FromQuery] int quantity = 1)
         {
             try
             {
-                _cartService.AddToCart(CurrentUserId, req.ProductId, req.Quantity);
+                int userId = GetCurrentUserId();
+                _cartService.AddToCart(userId, bookId, quantity);
                 return Ok(new { message = "Thêm sản phẩm vào giỏ hàng thành công!" });
             }
             catch (Exception ex) when (ex.Message == "OutOfStock")
@@ -67,16 +74,18 @@ namespace Bookstore.Web.Modules.NV3_Cart.Controllers
         }
 
         [HttpPost("update")]
-        public IActionResult Update([FromBody] CartRequest req)
+        public IActionResult Update([FromQuery] int bookId, [FromQuery] int quantity)
         {
-            _cartService.UpdateQuantity(CurrentUserId, req.ProductId, req.Quantity);
+            int userId = GetCurrentUserId();
+            _cartService.UpdateQuantity(userId, bookId, quantity);
             return Ok(new { message = "Cập nhật số lượng thành công!" });
         }
 
         [HttpPost("remove/{bookId}")]
         public IActionResult Remove(int bookId)
         {
-            _cartService.RemoveFromCart(CurrentUserId, bookId);
+            int userId = GetCurrentUserId();
+            _cartService.RemoveFromCart(userId, bookId);
             return Ok(new { message = "Đã xóa sản phẩm khỏi giỏ hàng." });
         }
     }

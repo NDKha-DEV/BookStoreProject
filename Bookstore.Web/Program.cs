@@ -1,8 +1,9 @@
 // Vị trí: Bookstore.Web/Program.cs
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV2_Book;
+using Bookstore.Core.Models.NV4_Order.Interfaces;
 using Bookstore.Web.Modules.NV2_Book.Services;
-using Bookstore.Web.Modules.NV4_Order;
+using Bookstore.Web.Modules.NV4_Order.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IBookService, BookService>(); 
 
 // [NV4]: Đăng ký lõi quản lý vòng đời đơn hàng xử lý State và Observer
-// builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 // (Lưu ý kiến trúc: NV3 và NV5 thực thi cấu trúc cơ động Decorator/Strategy/Adapter 
 // trực tiếp tại Runtime luồng xử lý của Controller nên không cần ép đăng ký Service).
