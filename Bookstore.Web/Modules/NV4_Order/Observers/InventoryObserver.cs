@@ -13,7 +13,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Observers
             var order = MockDataStore.Orders.FirstOrDefault(o => o.Id == orderId);
             if (order != null && order.ShippingStatus == "Delivered" && order.PaymentStatus == "Paid")
             {
-                Console.WriteLine($"\n[📦 OBSERVER INVENTORY] Kích hoạt trừ kho Đơn hàng #{orderId}:");
+                Console.WriteLine($"\n[ OBSERVER INVENTORY] Kích hoạt trừ kho Đơn hàng #{orderId}:");
                 foreach (var item in order.OrderItems)
                 {
                     // Đấu nối chuẩn xác sang kho sách thực tế của NV2

@@ -13,7 +13,7 @@ namespace Bookstore.Web.Modules.NV4_Order.States
         {
             order.ShippingStatus = "Delivered"; // Xác nhận giao hàng thành công
 
-            // 🌟 ĐỒNG BỘ LUỒNG COD: Nhận hàng thành công đồng nghĩa với việc đã thu được tiền mặt
+            //  Nhận hàng thành công đồng nghĩa với việc đã thu được tiền mặt
             if (order.PaymentMethod == "COD")
             {
                 order.PaymentStatus = "Paid";

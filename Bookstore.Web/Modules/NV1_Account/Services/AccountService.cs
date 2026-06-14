@@ -28,7 +28,7 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
             if (user != null)
             {
                 user.Role = role;
-                user.LoyaltyPoints = points;
+                // user.LoyaltyPoints = points;
             }
         }
 

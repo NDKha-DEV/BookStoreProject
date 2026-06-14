@@ -14,6 +14,6 @@ namespace Bookstore.Core.Models.NV1_Account
         // Phân quyền: "Admin" hoặc "Customer"
         public string Role { get; set; } = "Customer"; 
         
-        public int LoyaltyPoints { get; set; } = 0; 
+        // public int LoyaltyPoints { get; set; } = 0; 
     }
 }

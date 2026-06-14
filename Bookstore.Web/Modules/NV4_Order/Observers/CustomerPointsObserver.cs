@@ -17,7 +17,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Observers
                 if (user != null)
                 {
                     int points = (int)(order.TotalAmount / 100000);
-                    user.LoyaltyPoints += points;
+                    // user.LoyaltyPoints += points;
                     Console.WriteLine($"\n[OBSERVER] Đơn hàng #{orderId} HOÀN TẤT. Tài khoản '{user.Username}' được cộng {points} điểm.");
                 }
             }
