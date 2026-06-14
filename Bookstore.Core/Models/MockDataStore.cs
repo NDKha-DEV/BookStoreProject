@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Bookstore.Core.Utils; 
 using Bookstore.Core.Models.NV1_Account;
+using Bookstore.Core.Models.NV2_Book;
 
 namespace Bookstore.Core.Models
 {
@@ -28,15 +29,16 @@ namespace Bookstore.Core.Models
 
         public static List<Category> Categories { get; set; } = new List<Category>
         {
-            new Category { Id = 1, Name = "Sách Công Nghệ Thông Tin" },
-            new Category { Id = 2, Name = "Sách Kinh Tế - Kinh Doanh" }
+            new Category { Id = 1, Name = "Sách Công Nghệ Thông Tin", Description = "Lập trình, cơ sở dữ liệu, AI" },
+            new Category { Id = 2, Name = "Sách Kinh Tế - Kinh Doanh", Description = "Kinh tế học, tài chính, quản trị" }
         };
 
         public static List<Book> Books { get; set; } = new List<Book>
         {
-            new PhysicalBook { Id = 1, CategoryId = 1, Title = "Design Patterns cơ bản", Author = "Gang of Four", BasePrice = 150000, StockQuantity = 10, WeightInGram = 450 },
-            new EBook { Id = 2, CategoryId = 1, Title = "C# Nâng Cao và Clean Code", Author = "Tác giả Việt", BasePrice = 100000, StockQuantity = 99, FileSizeInMb = 15.2 },
-            new PhysicalBook { Id = 3, CategoryId = 2, Title = "Kinh tế học vĩ mô", Author = "Adam Smith", BasePrice = 200000, StockQuantity = 5, WeightInGram = 600 }
+            // 🔥 SỬA LỖI: Đổi từ PhysicalBook thành PaperBook cho khớp với Factory của NV2
+            new PaperBook { Id = 1, CategoryId = 1, Title = "Design Patterns cơ bản", Author = "Gang of Four", BasePrice = 150000, StockQuantity = 10 },
+            new EBook { Id = 2, CategoryId = 1, Title = "C# Nâng Cao và Clean Code", Author = "Tác giả Việt", BasePrice = 100000, StockQuantity = 99 },
+            new PaperBook { Id = 3, CategoryId = 2, Title = "Kinh tế học vĩ mô", Author = "Adam Smith", BasePrice = 200000, StockQuantity = 5 }
         };
 
         public static List<Order> Orders { get; set; } = new List<Order>();
@@ -46,11 +48,5 @@ namespace Bookstore.Core.Models
             { 2, new List<CartItem>() },
             { 3, new List<CartItem>() }
         };
-    }
-
-    public class Category
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
     }
 }

@@ -1,6 +1,7 @@
 // Vị trí: Bookstore.Web/Program.cs
 using Bookstore.Core.Interfaces;
-using Bookstore.Web.Modules.NV2_Book;
+using Bookstore.Core.Models.NV2_Book;
+using Bookstore.Web.Modules.NV2_Book.Services;
 using Bookstore.Web.Modules.NV4_Order;
 
 var builder = WebApplication.CreateBuilder(args);

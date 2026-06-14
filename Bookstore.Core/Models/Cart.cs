@@ -1,5 +1,6 @@
 // Trong file: Bookstore.Core/Models/Cart.cs
 using Bookstore.Core.Interfaces;
+using Bookstore.Core.Models.NV2_Book;
 
 namespace Bookstore.Core.Models
 {
