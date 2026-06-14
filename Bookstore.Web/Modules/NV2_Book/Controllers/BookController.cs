@@ -43,7 +43,7 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromQuery] string bookType, [FromQuery] int categoryId, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock)
+        public IActionResult Create([FromQuery] string bookType, [FromQuery] int categoryId, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock, [FromQuery] string imageUrl = "")
         {
             if (string.IsNullOrEmpty(title) || price <= 0) return BadRequest(new { message = "Dữ liệu không hợp lệ." });
             try
@@ -54,6 +54,7 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
                 newBook.BasePrice = price; 
                 newBook.StockQuantity = stock;
                 newBook.CategoryId = categoryId; // Gán danh mục liên kết
+                newBook.ImageUrl = imageUrl;
 
                 var allBooks = _bookService.GetAllBooks();
                 newBook.Id = allBooks.Count > 0 ? allBooks.Max(b => b.Id) + 1 : 1;
@@ -64,13 +65,14 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock)
+        public IActionResult Update(int id, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock, [FromQuery] string imageUrl = "")
         {
             var book = _bookService.GetAllBooks().FirstOrDefault(b => b.Id == id);
             if (book == null) return NotFound(new { message = "Không tìm thấy." });
             if (!string.IsNullOrEmpty(title)) book.Title = title;
             if (price > 0) book.BasePrice = price;
             if (stock >= 0) book.StockQuantity = stock;
+            if (!string.IsNullOrEmpty(imageUrl)) book.ImageUrl = imageUrl;
             return Ok(new { message = "Cập nhật thành công", data = book });
         }
 

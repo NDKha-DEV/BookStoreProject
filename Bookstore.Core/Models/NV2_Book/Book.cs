@@ -10,7 +10,7 @@ namespace Bookstore.Core.Models.NV2_Book
         public decimal BasePrice { get; set; } 
         public int StockQuantity { get; set; } 
         public string BookType { get; protected set; } = string.Empty;
-
+        public string ImageUrl { get; set; } = string.Empty;
         public abstract string GetDetails();
     }
 

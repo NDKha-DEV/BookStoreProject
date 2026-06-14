@@ -1,4 +1,3 @@
-// Vị trí: Bookstore.Core/Models/MockDataStore.cs
 using System;
 using System.Collections.Generic;
 using Bookstore.Core.Utils; 
@@ -21,11 +20,12 @@ namespace Bookstore.Core.Models
             string minhHash = PasswordHasher.HashPassword("minh123", out minhSalt);
             string longHash = PasswordHasher.HashPassword("long123", out longSalt);
 
+            // ✨ ĐỒNG BỘ: Bổ sung dữ liệu FullName và Address mẫu cho người dùng
             Users = new List<User>
             {
-                new User { Id = 1, Username = "admin_bookstore", PasswordHash = adminHash, PasswordSalt = adminSalt, Role = "ADMIN" },
-                new User { Id = 2, Username = "minh_customer", PasswordHash = minhHash, PasswordSalt = minhSalt, Role = "CUSTOMER" },
-                new User { Id = 3, Username = "long_customer", PasswordHash = longHash, PasswordSalt = longSalt, Role = "CUSTOMER" }
+                new User { Id = 1, Username = "admin_bookstore", PasswordHash = adminHash, PasswordSalt = adminSalt, Role = "ADMIN", FullName = "Quản Trị Viên Hệ Thống", Address = "Trụ sở chính Bookstore, Hà Nội" },
+                new User { Id = 2, Username = "minh_customer", PasswordHash = minhHash, PasswordSalt = minhSalt, Role = "CUSTOMER", FullName = "Nguyễn Văn Minh", Address = "123 Đường Lê Lợi, Quận 1, TP. HCM" },
+                new User { Id = 3, Username = "long_customer", PasswordHash = longHash, PasswordSalt = longSalt, Role = "CUSTOMER", FullName = "Trần Hoàng Long", Address = "456 Đường Nguyễn Trãi, Thanh Xuân, Hà Nội" }
             };
         }
 
@@ -37,10 +37,34 @@ namespace Bookstore.Core.Models
 
         public static List<Book> Books { get; set; } = new List<Book>
         {
-            // 🔥 SỬA LỖI: Đổi từ PhysicalBook thành PaperBook cho khớp với Factory của NV2
-            new PaperBook { Id = 1, CategoryId = 1, Title = "Design Patterns cơ bản", Author = "Gang of Four", BasePrice = 150000, StockQuantity = 10 },
-            new EBook { Id = 2, CategoryId = 1, Title = "C# Nâng Cao và Clean Code", Author = "Tác giả Việt", BasePrice = 100000, StockQuantity = 99 },
-            new PaperBook { Id = 3, CategoryId = 2, Title = "Kinh tế học vĩ mô", Author = "Adam Smith", BasePrice = 200000, StockQuantity = 5 }
+            // ✨ BỔ SUNG: Khởi tạo đường dẫn ImageUrl mẫu cho từng đầu sách (Có thể dùng link ảnh thật hoặc link placeholder để test)
+            new PaperBook { 
+                Id = 1, 
+                CategoryId = 1, 
+                Title = "Design Patterns cơ bản", 
+                Author = "Gang of Four", 
+                BasePrice = 150000, 
+                StockQuantity = 10,
+                ImageUrl = "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500" // Link ảnh minh họa mẫu
+            },
+            new EBook { 
+                Id = 2, 
+                CategoryId = 1, 
+                Title = "C# Nâng Cao và Clean Code", 
+                Author = "Tác giả Việt", 
+                BasePrice = 100000, 
+                StockQuantity = 99,
+                ImageUrl = "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=500"
+            },
+            new PaperBook { 
+                Id = 3, 
+                CategoryId = 2, 
+                Title = "Kinh tế học vĩ mô", 
+                Author = "Adam Smith", 
+                BasePrice = 200000, 
+                StockQuantity = 5,
+                ImageUrl = "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=500"
+            }
         };
 
         public static List<Order> Orders { get; set; } = new List<Order>();

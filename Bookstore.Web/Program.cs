@@ -23,6 +23,8 @@ builder.Services.AddOpenApi();
 // [NV2]: Đăng ký dịch vụ sách thông qua giao diện Interface chuẩn trừu tượng
 builder.Services.AddScoped<IBookService, BookService>(); 
 
+builder.Services.AddScoped<CategoryService>();
+
 // [NV4]: Đăng ký lõi quản lý vòng đời đơn hàng xử lý State và Observer
 builder.Services.AddScoped<IOrderService, OrderService>();
 
