@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Bookstore.Core.Interfaces;
+using Bookstore.Core.Models.NV3_Cart;
 
 namespace Bookstore.Core.Models
 {

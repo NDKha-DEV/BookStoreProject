@@ -23,7 +23,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IBookService, BookService>(); 
 
 // [NV4]: Đăng ký lõi quản lý vòng đời đơn hàng xử lý State và Observer
-builder.Services.AddScoped<IOrderService, OrderService>();
+// builder.Services.AddScoped<IOrderService, OrderService>();
 
 // (Lưu ý kiến trúc: NV3 và NV5 thực thi cấu trúc cơ động Decorator/Strategy/Adapter 
 // trực tiếp tại Runtime luồng xử lý của Controller nên không cần ép đăng ký Service).

@@ -1,8 +1,8 @@
-// Trong file: Bookstore.Core/Models/Cart.cs
+// vị trí: Bookstore.Core/Models/NV3_Cart/Cart.cs 
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV2_Book;
 
-namespace Bookstore.Core.Models
+namespace Bookstore.Core.Models.NV3_Cart
 {
     // Tạo Class CartItem trước để chứa thông tin dòng sản phẩm
     public class CartItem

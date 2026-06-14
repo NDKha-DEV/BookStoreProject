@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Bookstore.Core.Utils; 
 using Bookstore.Core.Models.NV1_Account;
 using Bookstore.Core.Models.NV2_Book;
+using Bookstore.Core.Models.NV3_Cart;
 
 namespace Bookstore.Core.Models
 {
@@ -43,10 +44,10 @@ namespace Bookstore.Core.Models
 
         public static List<Order> Orders { get; set; } = new List<Order>();
 
-        public static Dictionary<int, List<CartItem>> UserCarts { get; set; } = new Dictionary<int, List<CartItem>>
+        public static Dictionary<int, Cart> UserCarts { get; set; } = new Dictionary<int, Cart>
         {
-            { 2, new List<CartItem>() },
-            { 3, new List<CartItem>() }
+            { 2, new Cart() },
+            { 3, new Cart() }
         };
     }
 }

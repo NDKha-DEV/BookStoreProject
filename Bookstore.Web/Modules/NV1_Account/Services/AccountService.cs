@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV1_Account;
+using Bookstore.Core.Models.NV3_Cart;
 
 namespace Bookstore.Web.Modules.NV1_Account.Services
 {
@@ -16,7 +17,9 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
             newUser.Id = MockDataStore.Users.Count + 1;
             MockDataStore.Users.Add(newUser);
             if (!MockDataStore.UserCarts.ContainsKey(newUser.Id))
-                MockDataStore.UserCarts[newUser.Id] = new List<CartItem>();
+            {
+                MockDataStore.UserCarts[newUser.Id] = new Cart();
+            }
         }
 
         public void UpdateAccountByAdmin(int id, string role, int points)
