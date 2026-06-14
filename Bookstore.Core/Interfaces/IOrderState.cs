@@ -1,4 +1,4 @@
-// IOrderState.cs (Dành cho State Pattern)
+// vị trí: Bookstore.Core/Interfaces/IOrderState.cs
 using Bookstore.Core.Models;
 namespace Bookstore.Core.Interfaces {
     public interface IOrderState {

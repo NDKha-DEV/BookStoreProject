@@ -1,11 +1,12 @@
-// Vị trí: Bookstore.Web/Modules/NV1_Account/AuthService.cs
-using Bookstore.Core.Models;
-using Bookstore.Core.Utils;
+using System;
 using System.Linq;
+using Bookstore.Core.Models.NV1_Account;
+using Bookstore.Core.Utils; // Đảm bảo chứa PasswordHasher của bạn
+using Bookstore.Core.Models; // Để đọc dữ liệu MockDataStore
 
-namespace Bookstore.Web.Modules.NV1_Account
+namespace Bookstore.Web.Modules.NV1_Account.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private static AuthService? _instance;
         private static readonly object _lock = new object();
@@ -30,7 +31,6 @@ namespace Bookstore.Web.Modules.NV1_Account
             var user = MockDataStore.Users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
             if (user == null) return false;
 
-            // ✨ Sử dụng Helper để xác minh chuỗi băm bảo mật
             bool isValid = PasswordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
             if (isValid)
             {
@@ -42,13 +42,11 @@ namespace Bookstore.Web.Modules.NV1_Account
 
         public void Logout() => CurrentLoggedInUser = null;
 
-        // ✨ BỔ SUNG: Đăng ký tài khoản (Chỉ dành cho khách hàng)
         public bool Register(string username, string password)
         {
             if (MockDataStore.Users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
                 return false;
 
-            // ✨ Khi đăng ký tài khoản mới: Băm mật khẩu ra rồi mới lưu vào bộ nhớ RAM
             string hash = PasswordHasher.HashPassword(password, out string salt);
             
             var newUser = new User
@@ -63,17 +61,24 @@ namespace Bookstore.Web.Modules.NV1_Account
             return true;
         }
 
-        // ✨ BỔ SUNG: Khách hàng tự cập nhật thông tin cá nhân của mình
         public bool UpdateProfile(string newPassword)
         {
             if (CurrentLoggedInUser == null) return false;
+            
             var user = MockDataStore.Users.FirstOrDefault(u => u.Id == CurrentLoggedInUser.Id);
             if (user != null)
             {
-                user.PasswordHash = newPassword;
+                string hash = PasswordHasher.HashPassword(newPassword, out string salt);
+                user.PasswordHash = hash;
+                user.PasswordSalt = salt;
                 return true;
             }
             return false;
+        }
+
+        public string GetCurrentUserRole()
+        {
+            return CurrentLoggedInUser?.Role ?? "Guest";
         }
     }
 }

@@ -1,4 +1,4 @@
-// 2. NV2: IBookService.cs - Quản lý sản phẩm sách
+// vị trí: Bookstore.Core/Interfaces/IBookService.cs
 using Bookstore.Core.Models;
 namespace Bookstore.Core.Interfaces {
     public interface IBookService {

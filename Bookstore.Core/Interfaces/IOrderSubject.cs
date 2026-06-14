@@ -1,4 +1,4 @@
-// IOrderSubject.cs (Để class Order kế thừa nhằm quản lý danh sách Observer)
+// vị trí: Bookstore.Core/Interfaces/IOrderSubject.cs
 namespace Bookstore.Core.Interfaces {
     public interface IOrderSubject {
         void RegisterObserver(IOrderObserver observer);

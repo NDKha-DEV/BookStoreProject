@@ -1,4 +1,4 @@
-// 3. NV3: ICartService.cs - Quản lý tương tác giỏ hàng
+// vị trí: Bookstore.Core/Interfaces/ICartService.cs
 using Bookstore.Core.Models;
 namespace Bookstore.Core.Interfaces {
     public interface ICartService {

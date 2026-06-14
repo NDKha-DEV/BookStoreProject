@@ -5,8 +5,7 @@ using Bookstore.Core.Interfaces;
 using Bookstore.Web.Modules.NV3_Cart;
 using Bookstore.Web.Modules.NV3_Cart.Strategies;
 using Bookstore.Web.Modules.NV3_Cart.Decorators;
-using Bookstore.Web.Modules.NV1_Account;
-
+using Bookstore.Web.Modules.NV1_Account.Services;
 namespace Bookstore.Web.Controllers
 {
     [ApiController]

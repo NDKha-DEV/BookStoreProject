@@ -4,7 +4,7 @@ namespace Bookstore.Core.Models
     public abstract class Book
     {
         public int Id { get; set; }
-        public int CategoryId { get; set; } // ✨ ĐÃ BỔ SUNG: Khắc phục lỗi thiếu thuộc tính
+        public int CategoryId { get; set; } 
         public string Title { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
         public decimal BasePrice { get; set; } 

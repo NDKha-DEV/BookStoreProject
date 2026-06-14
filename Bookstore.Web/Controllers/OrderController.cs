@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Bookstore.Web.Modules.NV3_Cart;
 using Bookstore.Web.Modules.NV3_Cart.Strategies;
 using Bookstore.Web.Modules.NV3_Cart.Decorators;
-using Bookstore.Web.Modules.NV1_Account;
+using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Core.Models;
 
 namespace Bookstore.Web.Controllers

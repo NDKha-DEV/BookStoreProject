@@ -1,9 +1,9 @@
-// Vị trí: Bookstore.Web/Controllers/AccountController.cs
 using Microsoft.AspNetCore.Mvc;
-using Bookstore.Web.Modules.NV1_Account;
-using Bookstore.Core.Models;
+using System.Collections.Generic;
+using Bookstore.Web.Modules.NV1_Account.Services;
+using Bookstore.Core.Models.NV1_Account;
 
-namespace Bookstore.Web.Controllers
+namespace Bookstore.Web.Modules.NV1_Account.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -22,7 +22,7 @@ namespace Bookstore.Web.Controllers
                 if (user == null) return BadRequest(new { Message = "Không thể thiết lập phiên đăng nhập!" });
 
                 return Ok(new { Message = "Đăng nhập thành công!", User = user.Username, Role = user.Role });
-                            }
+            }
             return BadRequest(new { Message = "Sai tài khoản hoặc mật khẩu!" });
         }
 
@@ -48,10 +48,6 @@ namespace Bookstore.Web.Controllers
             if (isSuccess) return Ok(new { Message = "Cập nhật mật khẩu cá nhân thành công!" });
             return Unauthorized(new { Message = "Bạn chưa đăng nhập hệ thống!" });
         }
-
-        // ==========================================
-        // 🔐 HÀM BẢO MẬT ADMIN (Sử dụng Proxy kiểm quyền)
-        // ==========================================
 
         [HttpGet("admin/all-accounts")]
         public IActionResult GetAllAccounts()
@@ -81,7 +77,7 @@ namespace Bookstore.Web.Controllers
         {
             bool isAllowed = _accountProxy.ExecuteAdminAction(() =>
             {
-                Console.WriteLine($"[CORE ACTION] Hệ thống tiến hành xóa cuốn sách ID {id} khỏi danh mục.");
+                System.Console.WriteLine($"[CORE ACTION] Hệ thống tiến hành xóa cuốn sách ID {id} khỏi danh mục.");
             });
 
             if (isAllowed) return Ok(new { Message = $"Hành động thành công: Đã xóa sách ID {id}." });

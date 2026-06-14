@@ -1,6 +1,8 @@
 // Vị trí: Bookstore.Core/Models/MockDataStore.cs
+using System;
 using System.Collections.Generic;
-using Bookstore.Core.Utils; // Đảm bảo đã import namespace chứa lớp băm mật khẩu
+using Bookstore.Core.Utils; 
+using Bookstore.Core.Models.NV1_Account;
 
 namespace Bookstore.Core.Models
 {

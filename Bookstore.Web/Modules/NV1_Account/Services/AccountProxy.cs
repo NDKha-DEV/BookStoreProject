@@ -1,5 +1,8 @@
-// Vị trí: Bookstore.Web/Modules/NV1_Account/AccountProxy.cs
-namespace Bookstore.Web.Modules.NV1_Account
+// vị trí: Bookstore.Web/Modules/NV1_Account/Services/AccountProxy.cs
+using System;
+using Bookstore.Core.Models.NV1_Account;
+
+namespace Bookstore.Web.Modules.NV1_Account.Services
 {
     public class AccountProxy
     {

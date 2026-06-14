@@ -1,9 +1,10 @@
 // Vị trí: Bookstore.Web/Modules/NV1_Account/AccountService.cs
-using Bookstore.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Bookstore.Core.Models;
+using Bookstore.Core.Models.NV1_Account;
 
-namespace Bookstore.Web.Modules.NV1_Account
+namespace Bookstore.Web.Modules.NV1_Account.Services
 {
     public class AccountService
     {

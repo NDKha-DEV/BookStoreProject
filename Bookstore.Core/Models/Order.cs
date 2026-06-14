@@ -1,4 +1,4 @@
-// Trong file: Bookstore.Core/Models/Order.cs
+// vị trí: Bookstore.Core/Models/Order.cs
 using System;
 using System.Collections.Generic;
 using Bookstore.Core.Interfaces;
