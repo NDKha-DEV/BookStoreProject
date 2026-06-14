@@ -1,4 +1,4 @@
-// vị trí: Bookstore.Web/Modules/NV5_Payment/Services/OnlinePaymentTemplate.cs
+// Vị trí: Bookstore.Web/Modules/NV5_Payment/Services/OnlinePaymentTemplate.cs
 using System;
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models;
@@ -9,9 +9,10 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
 {
     public abstract class OnlinePaymentTemplate : IPaymentStrategy
     {
-        // Thuộc tính này sẽ được các lớp con định nghĩa để ghi nhận phương thức thanh toán
         protected abstract string PaymentMethodName { get; }
-        public bool ProcessPayment(Order order)
+
+        // ✨ Cải tiến: Nhận thêm IPaymentRepository thông qua tham số hàm xử lý
+        public bool ProcessPayment(Order order, IPaymentRepository paymentRepository)
         {
             InitTransaction(order);
             
@@ -23,8 +24,8 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
 
             bool apiResult = SendApiRequest(order.TotalAmount);
             
-            // Lưu dữ liệu giao dịch trực tiếp vào bộ nhớ hệ thống
-            SavePaymentToMockData(order.Id, order.TotalAmount, apiResult);
+            // Lưu dữ liệu thông qua Repository sạch
+            SavePaymentToRepository(order.Id, order.TotalAmount, apiResult, paymentRepository);
 
             return apiResult;
         }
@@ -39,21 +40,22 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
             Console.WriteLine($"[Lỗi] Xác thực hoặc chữ ký bảo mật thất bại cho đơn hàng ID: {orderId}.");
         }
 
-        private void SavePaymentToMockData(int orderId, decimal amount, bool isSuccess)
+        private void SavePaymentToRepository(int orderId, decimal amount, bool isSuccess, IPaymentRepository paymentRepository)
         {
             var paymentRecord = new Payment
             {
-                Id = MockDataStore.Payments.Count + 1,
+                Id = paymentRepository.GetAll().Count + 1,
                 OrderId = orderId,
                 Amount = amount,
                 PaymentDate = DateTime.Now,
                 PaymentMethod = this.PaymentMethodName,
                 IsSuccess = isSuccess
             };
-            MockDataStore.Payments.Add(paymentRecord);
+            
+            paymentRepository.Add(paymentRecord);
             
             string status = isSuccess ? "Thành công" : "Thất bại";
-            Console.WriteLine($"[MockDB] Đã lưu lịch sử giao dịch {paymentRecord.Id} - Trạng thái: {status}");
+            Console.WriteLine($"[Repository] Đã lưu lịch sử giao dịch #{paymentRecord.Id} - Trạng thái: {status}");
         }
 
         protected abstract bool ValidateAndSign();

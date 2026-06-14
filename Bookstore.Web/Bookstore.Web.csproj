@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bookstore.Core\Bookstore.Core.csproj" />
+    <ProjectReference Include="..\Bookstore.Infrastructure\Bookstore.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

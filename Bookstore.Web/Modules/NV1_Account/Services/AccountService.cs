@@ -1,41 +1,47 @@
-// Vị trí: Bookstore.Web/Modules/NV1_Account/AccountService.cs
+// Vị trí: Bookstore.Web/Modules/NV1_Account/Services/AccountService.cs
 using System.Collections.Generic;
-using System.Linq;
-using Bookstore.Core.Models;
+using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV1_Account;
-using Bookstore.Core.Models.NV3_Cart;
 
 namespace Bookstore.Web.Modules.NV1_Account.Services
 {
-    public class AccountService
+    public class AccountService : IAccountService
     {
-        // ✨ BỔ SUNG: CRUD danh sách tài khoản (Hàm bảo mật chỉ dành cho Admin điều hành)
-        public List<User> GetAllAccounts() => MockDataStore.Users;
+        private readonly IUserRepository _userRepository;
+        private readonly ICartRepository _cartRepository;
+
+        // ✨ Nhận cổng giao tiếp dữ liệu thông qua DI
+        public AccountService(IUserRepository userRepository, ICartRepository cartRepository)
+        {
+            _userRepository = userRepository;
+            _cartRepository = cartRepository;
+        }
+
+        public List<User> GetAllAccounts() => _userRepository.GetAll();
 
         public void CreateAccountByAdmin(User newUser)
         {
-            newUser.Id = MockDataStore.Users.Count + 1;
-            MockDataStore.Users.Add(newUser);
-            if (!MockDataStore.UserCarts.ContainsKey(newUser.Id))
-            {
-                MockDataStore.UserCarts[newUser.Id] = new Cart();
-            }
+            newUser.Id = _userRepository.GetAll().Count + 1;
+            _userRepository.Add(newUser);
+            
+            // Khởi tạo giỏ hàng rỗng cho User mới qua CartRepository
+            _cartRepository.GetByUserId(newUser.Id); 
         }
 
         public void UpdateAccountByAdmin(int id, string role, int points)
         {
-            var user = MockDataStore.Users.FirstOrDefault(u => u.Id == id);
+            var user = _userRepository.GetById(id);
             if (user != null)
             {
                 user.Role = role;
                 user.LoyaltyPoints = points;
+                _userRepository.Update(user);
             }
         }
 
         public void DeleteAccountByAdmin(int id)
         {
-            var user = MockDataStore.Users.FirstOrDefault(u => u.Id == id);
-            if (user != null) MockDataStore.Users.Remove(user);
+            _userRepository.Delete(id);
         }
     }
 }

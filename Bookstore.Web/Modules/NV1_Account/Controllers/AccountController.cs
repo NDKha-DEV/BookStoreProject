@@ -1,7 +1,9 @@
+// Vị trí: Bookstore.Web/Modules/NV1_Account/Controllers/AccountController.cs
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Core.Models.NV1_Account;
+using Bookstore.Core.Interfaces;
 
 namespace Bookstore.Web.Modules.NV1_Account.Controllers
 {
@@ -10,7 +12,13 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AccountProxy _accountProxy = new AccountProxy();
-        private readonly AccountService _accountService = new AccountService();
+        private readonly IAccountService _accountService;
+
+        // ✨ Đi dây kết nối DI cho Controller
+        public AccountController(IAccountService accountService)
+        {
+            _accountService = accountService;
+        }
 
         [HttpPost("login")]
         public IActionResult Login([FromQuery] string username, [FromQuery] string password)
@@ -53,7 +61,6 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         public IActionResult GetAllAccounts()
         {
             List<User>? data = null;
-            // Chỉ ADMIN mới được xem tài khoản
             bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN" }, () => {
                 data = _accountService.GetAllAccounts();
             });
@@ -65,7 +72,6 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpPost("admin/create-account")]
         public IActionResult CreateAccountByAdmin([FromBody] User newUser)
         {
-            // Chỉ ADMIN mới được tạo tài khoản
             bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN" }, () => {
                 _accountService.CreateAccountByAdmin(newUser);
             });
@@ -77,7 +83,6 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpDelete("admin/delete-book/{id}")]
         public IActionResult DeleteBookSecurely(int id)
         {
-            // Cả ADMIN và STAFF (nhân viên) đều có quyền xóa/quản lý sách!
             bool isAllowed = _accountProxy.ExecuteSecureAction(new[] { "ADMIN", "STAFF" }, () =>
             {
                 System.Console.WriteLine($"[CORE ACTION] Tiến hành xóa cuốn sách ID {id} khỏi danh mục.");

@@ -1,27 +1,32 @@
-// vị trí: Bookstore.Web/Modules/NV2_Book/Services/BookService.cs
+// Vị trí: Bookstore.Web/Modules/NV2_Book/Services/BookService.cs
 using System.Collections.Generic;
 using System.Linq;
-using Bookstore.Core.Models;
+using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV2_Book;
 
 namespace Bookstore.Web.Modules.NV2_Book.Services
 {
     public class BookService : IBookService
     {
-        // 🔥 ĐỒNG BỘ: Đã xóa sổ hoàn toàn _books static riêng tư, chuyển sang dùng MockDataStore chung
-        public List<Book> GetAllBooks() => MockDataStore.Books;
+        private readonly IBookRepository _bookRepository;
 
-        public Book? GetBookById(int id)
+        // ✨ Tiêm cổng giao tiếp dữ liệu thông qua DI thay vì gọi cứng MockDataStore
+        public BookService(IBookRepository bookRepository)
         {
-            return MockDataStore.Books.FirstOrDefault(b => b.Id == id);
+            _bookRepository = bookRepository;
         }
+
+        public List<Book> GetAllBooks() => _bookRepository.GetAll();
+
+        public Book? GetBookById(int id) => _bookRepository.GetById(id);
 
         public void UpdateStock(int bookId, int quantity)
         {
-            var book = MockDataStore.Books.FirstOrDefault(b => b.Id == bookId);
+            var book = _bookRepository.GetById(bookId);
             if (book != null)
             {
                 book.StockQuantity = quantity;
+                _bookRepository.Update(book);
             }
         }
     }

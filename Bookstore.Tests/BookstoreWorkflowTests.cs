@@ -9,6 +9,9 @@ using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV2_Book;
 using Bookstore.Core.Models.NV3_Cart;
 using Bookstore.Web.Modules.NV1_Account.Services;
+using Bookstore.Web.Modules.NV2_Book.Services;
+using Bookstore.Infrastructure.Repositories;
+using Bookstore.Core.Interfaces;
 
 namespace Bookstore.Tests
 {
@@ -30,6 +33,17 @@ namespace Bookstore.Tests
                             new EBook { Id = 2, CategoryId = 1, Title = "C# Nâng Cao và Clean Code", Author = "Tác giả Việt", BasePrice = 100000, StockQuantity = 99 }
                         };
                     }
+
+                    var userRepo = new MockUserRepository();
+                    AuthService.Instance.Initialize(userRepo);
+
+                    services.AddSingleton<IBookRepository, MockBookRepository>();
+                    services.AddSingleton<ICategoryRepository, MockCategoryRepository>();
+                    services.AddScoped<ICategoryService, CategoryService>();
+                    // Bơm các Interface hỗ trợ vào môi trường Test ảo của WebApplicationFactory
+                    services.AddSingleton<IUserRepository>(userRepo);
+                    services.AddSingleton<ICartRepository, MockCartRepository>();
+                    services.AddScoped<IAccountService, AccountService>();
                 });
             });
 

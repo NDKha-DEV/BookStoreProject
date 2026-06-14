@@ -1,7 +1,6 @@
-// vị trí: Bookstore.Web/Modules/NV2_Book/Controllers/CategoryController.cs
+// Vị trí: Bookstore.Web/Modules/NV2_Book/Controllers/CategoryController.cs
 using Microsoft.AspNetCore.Mvc;
 using Bookstore.Core.Models.NV2_Book;
-using Bookstore.Web.Modules.NV2_Book.Services;
 
 namespace Bookstore.Web.Modules.NV2_Book.Controllers
 {
@@ -9,8 +8,9 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly CategoryService _categoryService;
-        public CategoryController(CategoryService catService) 
+        private readonly ICategoryService _categoryService; // ✨ Đổi sang Interface
+        
+        public CategoryController(ICategoryService catService) 
         { 
             _categoryService = catService; 
         }
@@ -33,8 +33,10 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
             var category = _categoryService.GetCategoryById(id);
             if (category == null) return NotFound(new { message = "Không tìm thấy." });
             if (_categoryService.IsNameExists(name, id)) return BadRequest(new { message = "Tên danh mục mới bị trùng lặp." });
+            
             if (!string.IsNullOrWhiteSpace(name)) category.Name = name;
             if (!string.IsNullOrWhiteSpace(description)) category.Description = description;
+            
             _categoryService.UpdateCategory(category);
             return Ok(new { message = "Cập nhật thành công", data = category });
         }

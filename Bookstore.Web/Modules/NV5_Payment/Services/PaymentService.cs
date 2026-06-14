@@ -1,24 +1,32 @@
 // Vị trí: Bookstore.Web/Modules/NV5_Payment/Services/PaymentService.cs
 using System;
-using System.Linq;
-using Bookstore.Core.Models;
+using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV5_Payment.Interfaces;
-using Bookstore.Web.Modules.NV4_Order.States;
 
 namespace Bookstore.Web.Modules.NV5_Payment.Services
 {
     public class PaymentService
     {
+        private readonly IOrderRepository _orderRepository;
+        private readonly IPaymentRepository _paymentRepository;
+
+        // Tiêm lỏng các cổng lưu trữ thông qua hàm khởi tạo công khai
+        public PaymentService(IOrderRepository orderRepository, IPaymentRepository paymentRepository)
+        {
+            _orderRepository = orderRepository;
+            _paymentRepository = paymentRepository;
+        }
+
         public bool ProcessOrderPayment(int orderId, string paymentMethod)
         {
-            // 1. Tìm đơn hàng cần thanh toán trong hệ thống
-            var order = MockDataStore.Orders.FirstOrDefault(o => o.Id == orderId);
+            // 1. Tìm đơn hàng thông qua Repo sạch
+            var order = _orderRepository.GetById(orderId);
             if (order == null) throw new Exception("Không tìm thấy đơn hàng để thanh toán!");
 
             var method = paymentMethod.ToUpper();
-            order.PaymentMethod = method; // Cập nhật phương thức người dùng chọn vào đơn hàng
+            order.PaymentMethod = method;
 
-            // 2. STRATEGY PATTERN: NV5 quyết định chiến lược xử lý tiền
+            // 2. STRATEGY PATTERN: Khởi tạo chiến lược
             IPaymentStrategy paymentStrategy = method switch
             {
                 "MOMO" => new MoMoPayment(),
@@ -28,28 +36,28 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
                 _ => throw new Exception("Phương thức thanh toán không được hỗ trợ!")
             };
 
-            // 3. Thực thi thanh toán
-            bool isSuccess = paymentStrategy.ProcessPayment(order);
+            // 3. Thực thi thanh toán đầu cuối
+            bool isSuccess = paymentStrategy.ProcessPayment(order, _paymentRepository);
 
-            // 4. Đồng bộ luồng trạng thái với NV4 sau khi có kết quả thanh toán
+            // 4. Đồng bộ luồng trạng thái State Pattern
             if (isSuccess)
             {
                 if (method == "COD")
                 {
-                    order.PaymentStatus = "Unpaid"; // COD thì nhận hàng mới trả tiền
+                    order.PaymentStatus = "Unpaid";
                 }
                 else
                 {
-                    order.PaymentStatus = "Paid"; // Online thành công thì đánh dấu Đã trả
+                    order.PaymentStatus = "Paid";
                 }
                 
-                // ĐA HÌNH STATE PATTERN: Kích hoạt chuyển trạng thái từ Chờ thanh toán -> Chờ duyệt giao hàng (PendingState)
                 order.Proceed(); 
+                _orderRepository.Update(order); // Đồng bộ thay đổi trạng thái đơn hàng vào Repo
             }
             else
             {
                 order.PaymentStatus = "Failed";
-                // Giữ nguyên trạng thái AwaitingPaymentState để khách có thể thử lại
+                _orderRepository.Update(order);
             }
 
             return isSuccess;

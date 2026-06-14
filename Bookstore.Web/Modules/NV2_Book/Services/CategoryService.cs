@@ -1,46 +1,51 @@
-// vị trí: Bookstore.Web/Modules/NV2_Book/Services/CategoryService.cs
+// Vị trí: Bookstore.Web/Modules/NV2_Book/Services/CategoryService.cs
 using System.Collections.Generic;
 using System.Linq;
-using Bookstore.Core.Models;
+using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV2_Book;
 
 namespace Bookstore.Web.Modules.NV2_Book.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
-        public List<Category> GetAllCategories() => MockDataStore.Categories;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public Category? GetCategoryById(int id) => MockDataStore.Categories.FirstOrDefault(c => c.Id == id);
+        public CategoryService(ICategoryRepository categoryRepository)
+        {
+            _categoryRepository = categoryRepository;
+        }
+
+        public List<Category> GetAllCategories() => _categoryRepository.GetAll();
+
+        public Category? GetCategoryById(int id) => _categoryRepository.GetById(id);
 
         public bool IsNameExists(string name, int? excludeId = null)
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
-            return MockDataStore.Categories.Any(c => c.Name.ToLower() == name.Trim().ToLower() && c.Id != excludeId);
+            return _categoryRepository.GetAll().Any(c => c.Name.ToLower() == name.Trim().ToLower() && c.Id != excludeId);
         }
 
         public void AddCategory(Category c)
         {
-            c.Id = MockDataStore.Categories.Count > 0 ? MockDataStore.Categories.Max(x => x.Id) + 1 : 1;
-            MockDataStore.Categories.Add(c);
+            var allCats = _categoryRepository.GetAll();
+            c.Id = allCats.Count > 0 ? allCats.Max(x => x.Id) + 1 : 1;
+            _categoryRepository.Add(c);
         }
 
         public void UpdateCategory(Category c)
         {
-            var existingCategory = GetCategoryById(c.Id);
+            var existingCategory = _categoryRepository.GetById(c.Id);
             if (existingCategory != null)
             {
                 existingCategory.Name = c.Name;
                 existingCategory.Description = c.Description;
+                _categoryRepository.Update(existingCategory);
             }
         }
 
         public void DeleteCategory(int id)
         {
-            var category = GetCategoryById(id);
-            if (category != null)
-            {
-                MockDataStore.Categories.Remove(category);
-            }
+            _categoryRepository.Delete(id);
         }
     }
 }

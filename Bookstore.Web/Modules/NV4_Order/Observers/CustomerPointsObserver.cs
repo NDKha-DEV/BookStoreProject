@@ -3,11 +3,20 @@ using System;
 using System.Linq;
 using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV4_Order.Interfaces;
+using Bookstore.Core.Interfaces;
 
 namespace Bookstore.Web.Modules.NV4_Order.Observers
 {
     public class CustomerPointsObserver : IOrderObserver
     {
+        private readonly IOrderRepository _orderRepository;
+        private readonly IUserRepository _userRepository;
+
+        public CustomerPointsObserver(IOrderRepository orderRepository, IUserRepository userRepository)
+        {
+            _orderRepository = orderRepository;
+            _userRepository = userRepository;
+        }
         public void UpdateOnOrderDelivered(int orderId)
         {
             var order = MockDataStore.Orders.FirstOrDefault(o => o.Id == orderId);
@@ -18,6 +27,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Observers
                 {
                     int points = (int)(order.TotalAmount / 100000);
                     user.LoyaltyPoints += points;
+                    _userRepository.Update(user); 
                     Console.WriteLine($"\n[OBSERVER] Đơn hàng #{orderId} HOÀN TẤT. Tài khoản '{user.Username}' được cộng {points} điểm.");
                 }
             }

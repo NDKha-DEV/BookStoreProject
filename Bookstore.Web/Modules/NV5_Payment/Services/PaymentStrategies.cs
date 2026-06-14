@@ -60,10 +60,10 @@ namespace Bookstore.Web.Modules.NV5_Payment.Services
     // --- 4. Phương thức COD (Chiến lược độc lập, không dùng Template Online) ---
     public class CODPayment : IPaymentStrategy
     {
-        public bool ProcessPayment(Order order)
+        public bool ProcessPayment(Order order, IPaymentRepository paymentRepository)
         {
             Console.WriteLine($"[COD] Đã xác nhận hình thức thu tiền mặt khi nhận hàng cho đơn {order.Id}.");
-            return true; // Đơn hàng COD mặc định xử lý bước tạo ban đầu luôn đúng
+            return true; 
         }
     }
 }

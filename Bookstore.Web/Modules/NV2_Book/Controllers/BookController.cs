@@ -1,6 +1,8 @@
+// Vị trí: Bookstore.Web/Modules/NV2_Book/Controllers/BookController.cs
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Bookstore.Core.Models.NV2_Book;
+using Bookstore.Core.Interfaces;
 using Bookstore.Web.Modules.NV2_Book.Services;
 
 namespace Bookstore.Web.Modules.NV2_Book.Controllers
@@ -10,9 +12,12 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
     public class BookController : ControllerBase
     {
         private readonly IBookService _bookService;
-        public BookController(IBookService bookService) 
+        private readonly IBookRepository _bookRepository; // ✨ Bổ sung để can thiệp ghi dữ liệu an toàn
+
+        public BookController(IBookService bookService, IBookRepository bookRepository) 
         {
             _bookService = bookService;
+            _bookRepository = bookRepository;
         }
 
         [HttpGet]
@@ -21,7 +26,7 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var book = _bookService.GetAllBooks().FirstOrDefault(b => b.Id == id);
+            var book = _bookService.GetBookById(id);
             if (book == null) 
                 return NotFound(new { message = $"Không tìm thấy sách có ID = {id}" });
             
@@ -53,11 +58,12 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
                 newBook.Author = author; 
                 newBook.BasePrice = price; 
                 newBook.StockQuantity = stock;
-                newBook.CategoryId = categoryId; // Gán danh mục liên kết
+                newBook.CategoryId = categoryId;
 
                 var allBooks = _bookService.GetAllBooks();
                 newBook.Id = allBooks.Count > 0 ? allBooks.Max(b => b.Id) + 1 : 1;
-                allBooks.Add(newBook);
+                
+                _bookRepository.Add(newBook); // ✨ Thay vì dùng allBooks.Add(newBook) lỗi thời
                 return Ok(new { message = "Thêm thành công", data = newBook });
             }
             catch (System.ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
@@ -66,21 +72,24 @@ namespace Bookstore.Web.Modules.NV2_Book.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromQuery] string title, [FromQuery] string author, [FromQuery] decimal price, [FromQuery] int stock)
         {
-            var book = _bookService.GetAllBooks().FirstOrDefault(b => b.Id == id);
+            var book = _bookService.GetBookById(id);
             if (book == null) return NotFound(new { message = "Không tìm thấy." });
+            
             if (!string.IsNullOrEmpty(title)) book.Title = title;
             if (price > 0) book.BasePrice = price;
             if (stock >= 0) book.StockQuantity = stock;
+            
+            _bookRepository.Update(book); // ✨ Lưu trạng thái cập nhật qua repo
             return Ok(new { message = "Cập nhật thành công", data = book });
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var allBooks = _bookService.GetAllBooks();
-            var book = allBooks.FirstOrDefault(b => b.Id == id);
+            var book = _bookService.GetBookById(id);
             if (book == null) return NotFound(new { message = "Không tìm thấy." });
-            allBooks.Remove(book);
+            
+            _bookRepository.Delete(id); // ✨ Thực hiện xóa qua repo an toàn
             return Ok(new { message = "Xóa thành công." });
         }
     }
