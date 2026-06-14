@@ -16,9 +16,9 @@ namespace Bookstore.Web.Modules.NV4_Order.Observers
                 var user = MockDataStore.Users.FirstOrDefault(u => u.Id == order.UserId);
                 if (user != null)
                 {
-                    int points = (int)(order.TotalAmount / 100000);
+                    // int points = (int)(order.TotalAmount / 100000);
                     // user.LoyaltyPoints += points;
-                    Console.WriteLine($"\n[OBSERVER] Đơn hàng #{orderId} HOÀN TẤT. Tài khoản '{user.Username}' được cộng {points} điểm.");
+                    Console.WriteLine($"\n[OBSERVER] Đơn hàng #{orderId} HOÀN TẤT.");
                 }
             }
         }
