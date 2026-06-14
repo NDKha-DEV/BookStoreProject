@@ -1,6 +1,7 @@
 // Vị trí: Bookstore.Web/Modules/NV4_Order/States/PendingState.cs
-using Bookstore.Core.Interfaces;
-using Bookstore.Core.Models;
+using System;
+using Bookstore.Core.Models.NV4_Order;
+using Bookstore.Core.Models.NV4_Order.Interfaces;
 
 namespace Bookstore.Web.Modules.NV4_Order.States
 {

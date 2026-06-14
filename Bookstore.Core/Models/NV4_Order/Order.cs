@@ -1,10 +1,10 @@
-// vị trí: Bookstore.Core/Models/Order.cs
+// vị trí: Bookstore.Core/Models/NV4_Order/Order.cs
 using System;
 using System.Collections.Generic;
-using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV3_Cart;
+using Bookstore.Core.Models.NV4_Order.Interfaces;
 
-namespace Bookstore.Core.Models
+namespace Bookstore.Core.Models.NV4_Order
 {
     public class Order
     {
@@ -13,16 +13,13 @@ namespace Bookstore.Core.Models
         public decimal TotalAmount { get; set; }
         public DateTime CreatedDate { get; set; }
         public string PaymentMethod { get; set; } = string.Empty; // "COD" hoặc "ONLINE"
-        // Thêm danh sách các mặt hàng được chụp lại từ Giỏ hàng lúc bấm Mua
         public List<CartItem> OrderItems { get; set; } = new List<CartItem>();
-        // 🌟 TRỤC TRẠNG THÁI ĐÔI SONG SONG
+        
         public string PaymentStatus { get; set; } = "Unpaid";      // "Unpaid", "Paid", "Refunded"
         public string ShippingStatus { get; set; } = "NotShipped";  // "NotShipped", "Shipping", "Delivered", "Cancelled"
 
-        // Quản lý State Pattern
         public IOrderState CurrentState { get; set; } = null!;
 
-        // Quản lý Observer Pattern
         private readonly List<IOrderObserver> _observers = new List<IOrderObserver>();
 
         public void RegisterObserver(IOrderObserver observer) => _observers.Add(observer);
@@ -35,13 +32,10 @@ namespace Bookstore.Core.Models
             }
         }
 
-        // Các hàm bọc để State xử lý dịch chuyển linh hoạt
         public void Proceed() => CurrentState.Proceed(this);
         public void Cancel()
         {
             CurrentState.Cancel(this);
-            
-            // ✨ BỔ SUNG: Phát tín hiệu hủy đơn sang toàn bộ các hệ thống Observer quản lý
             foreach (var observer in _observers)
             {
                 observer.UpdateOnOrderCancelled(this.Id);

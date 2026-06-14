@@ -5,6 +5,7 @@ using Bookstore.Core.Utils;
 using Bookstore.Core.Models.NV1_Account;
 using Bookstore.Core.Models.NV2_Book;
 using Bookstore.Core.Models.NV3_Cart;
+using Bookstore.Core.Models.NV4_Order;
 
 namespace Bookstore.Core.Models
 {

@@ -1,6 +1,6 @@
 // Vị trí: Bookstore.Web/Modules/NV4_Order/States/DeliveredState.cs
-using Bookstore.Core.Interfaces;
-using Bookstore.Core.Models;
+using Bookstore.Core.Models.NV4_Order.Interfaces;
+using Bookstore.Core.Models.NV4_Order;
 
 namespace Bookstore.Web.Modules.NV4_Order.States
 {

@@ -1,7 +1,7 @@
-// Vị trí: Bookstore.Core/Interfaces/IOrderService.cs
-using Bookstore.Core.Models;
+// Vị trí: Bookstore.Core/Models/NV4_Order/Interfaces/IOrderService.cs
+using Bookstore.Core.Models.NV4_Order;
 
-namespace Bookstore.Core.Interfaces
+namespace Bookstore.Core.Models.NV4_Order.Interfaces
 {
     public interface IOrderService
     {

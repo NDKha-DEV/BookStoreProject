@@ -1,8 +1,11 @@
+// Vị trí: Bookstore.Web/Modules/NV3_Cart/Services/CartService.cs
 using System;
 using System.Linq;
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV3_Cart;
+using Bookstore.Core.Models.NV4_Order.Interfaces;
+using Bookstore.Web.Modules.NV4_Order.Services;
 
 namespace Bookstore.Web.Modules.NV3_Cart.Services
 {
@@ -64,21 +67,36 @@ namespace Bookstore.Web.Modules.NV3_Cart.Services
         }
 
         // 🔥 ĐÂY CHÍNH LÀ NƠI ÁP DỤNG DECORATOR PATTERN KHI GỌI TÍNH TỔNG TIỀN
+        // 🔥 ĐÃ ĐỒNG BỘ: Tính toán trọn gói từ Tiền hàng, Decorator (Thuế/Quà) đến Strategy (Phí vận chuyển)
         public decimal GetFinalTotal(int userId, bool applyVat, bool applyGiftWrapping)
         {
-            ICart cart = GetCartByUserId(userId); // Component gốc
+            // 1. Lấy giỏ hàng gốc của người dùng
+            var cart = GetCartByUserId(userId); 
+            ICart decoratedCart = cart; // Thành phần gốc ban đầu phục vụ Decorator
 
+            // 2. Áp dụng Decorator Pattern để tính toán thuế và dịch vụ gói quà trên tiền hàng
             if (applyVat)
             {
-                cart = new VatTaxDecorator(cart); // Bọc tầng tính thuế
+                decoratedCart = new VatTaxDecorator(decoratedCart); 
             }
 
             if (applyGiftWrapping)
             {
-                cart = new GiftWrappingDecorator(cart); // Bọc tầng gói quà
+                decoratedCart = new GiftWrappingDecorator(decoratedCart); 
             }
 
-            return cart.CalculateTotal(); // Thực thi tính toán qua các lớp bọc
+            // Đây là số tiền hàng sau khi đã cộng các dịch vụ gia tăng (nếu có)
+            decimal totalProductAndServices = decoratedCart.CalculateTotal(); 
+
+            // 3. Áp dụng Strategy Pattern để tính phí vận chuyển dựa trên thuộc tính Km của Cart
+            IShippingStrategy shippingStrategy = cart.DeliveryDistanceInKm < 5 
+                ? new StandardShippingStrategy() 
+                : new ExpressShippingStrategy();
+
+            decimal shippingFee = shippingStrategy.CalculateShippingFee(cart.DeliveryDistanceInKm);
+
+            // Trả về con số cuối cùng trọn gói bàn giao cho đơn hàng
+            return totalProductAndServices + shippingFee;
         }
     }
 }

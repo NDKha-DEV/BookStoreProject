@@ -1,5 +1,5 @@
-// Vị trí: Bookstore.Core/Interfaces/IShippingStrategy.cs
-namespace Bookstore.Core.Interfaces 
+// Vị trí: Bookstore.Core/Models/NV4_Order/Interfaces/IShippingStrategy.cs
+namespace Bookstore.Core.Models.NV4_Order.Interfaces 
 {
     public interface IShippingStrategy 
     {
