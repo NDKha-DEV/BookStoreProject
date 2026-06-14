@@ -1,38 +1,37 @@
-namespace Bookstore.Core.Models
+// vị trí: Bookstore.Core/Models/NV2_Book/Book.cs
+namespace Bookstore.Core.Models.NV2_Book
 {
-// 1. Model Danh mục
-    public class Category
+    public abstract class Book
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public int CategoryId { get; set; } 
+        public string Title { get; set; } = string.Empty;
+        public string Author { get; set; } = string.Empty;
+        public decimal BasePrice { get; set; } 
+        public int StockQuantity { get; set; } 
+        public string BookType { get; protected set; } = string.Empty;
+
+        public abstract string GetDetails();
     }
- 
-// HỆ THỐNG SẼ TỰ ĐỘNG DÙNG LỚP 'Book'  SẴN CÓ CỦA DỰ ÁN.
-// 2. Các loại sách cụ thể 
+
     public class PaperBook : Book 
     { 
         public PaperBook() => BookType = "Paper"; 
-        
-        // Cần có hàm này để thỏa mãn lớp abstract gốc
         public override string GetDetails() => $"[Paper Book] {Title} - Author: {Author}, Price: {BasePrice}";
     }
 
     public class EBook : Book 
     { 
         public EBook() => BookType = "EBook"; 
-        
         public override string GetDetails() => $"[E-Book] {Title} - Author: {Author}, Price: {BasePrice}";
     }
 
     public class AudioBook : Book 
     { 
         public AudioBook() => BookType = "Audio"; 
-        
         public override string GetDetails() => $"[Audio Book] {Title} - Author: {Author}, Price: {BasePrice}";
     }
 
-// 3. Factory Method sinh theo loại sách
     public static class BookFactory
     {
         public static Book CreateBook(string type)
