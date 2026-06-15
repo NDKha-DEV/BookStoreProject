@@ -6,6 +6,7 @@ using Bookstore.Core.Models;
 using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Web.Modules.NV3_Cart.Services; // Kết nối sang dịch vụ giỏ hàng NV3
 using Bookstore.Web.Modules.NV4_Order.Services;
+using Bookstore.Core.Models.NV1_Account;
 
 namespace Bookstore.Web.Modules.NV4_Order.Controllers
 {
@@ -14,12 +15,14 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IAuthService _authService;
         
         private readonly CartService _cartService = new CartService();
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IAuthService authService)
         {
             _orderService = orderService;
+            _authService = authService;
         }
 
         [HttpPost("create-order")]
@@ -27,7 +30,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
         {
             try
             {
-                var user = AuthService.Instance.CurrentLoggedInUser;
+                var user = _authService.CurrentLoggedInUser;
                 int userId;
 
                 if (user != null)

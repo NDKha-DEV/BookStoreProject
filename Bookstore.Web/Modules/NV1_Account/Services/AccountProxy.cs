@@ -6,7 +6,12 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
 {
     public class AccountProxy
     {
-        private readonly AuthService _authService = AuthService.Instance;
+        private readonly IAuthService _authService;
+
+        public AccountProxy(IAuthService authService)
+        {
+            _authService = authService;
+        }
 
         /// <summary>
         /// Bảo vệ các tính năng nhạy cảm (như duyệt đơn hàng của NV4). Chỉ cho phép Admin đi qua.

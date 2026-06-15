@@ -4,17 +4,32 @@ using System.Linq;
 using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV1_Account;
 using Bookstore.Core.Models.NV3_Cart;
+using Bookstore.Core.Security;
 
 namespace Bookstore.Web.Modules.NV1_Account.Services
 {
     public class AccountService
     {
+        private readonly IPasswordHashStrategy _passwordHashStrategy;
+
+        public AccountService(IPasswordHashStrategy passwordHashStrategy)
+        {
+            _passwordHashStrategy = passwordHashStrategy;
+        }
+
         // ✨ BỔ SUNG: CRUD danh sách tài khoản (Hàm bảo mật chỉ dành cho Admin điều hành)
         public List<User> GetAllAccounts() => MockDataStore.Users;
 
         public void CreateAccountByAdmin(User newUser)
         {
             newUser.Id = MockDataStore.Users.Count + 1;
+            newUser.Role = string.IsNullOrWhiteSpace(newUser.Role) ? "CUSTOMER" : newUser.Role.ToUpperInvariant();
+
+            var password = newUser.PasswordHash;
+            var (hash, salt) = _passwordHashStrategy.HashPassword(password);
+            newUser.PasswordHash = hash;
+            newUser.PasswordSalt = salt;
+
             MockDataStore.Users.Add(newUser);
             if (!MockDataStore.UserCarts.ContainsKey(newUser.Id))
             {

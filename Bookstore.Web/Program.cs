@@ -2,6 +2,9 @@
 using Bookstore.Core.Interfaces;
 using Bookstore.Core.Models.NV2_Book;
 using Bookstore.Core.Models.NV4_Order.Interfaces;
+using Bookstore.Core.Security;
+using Bookstore.Core.Models.NV1_Account;
+using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Web.Modules.NV2_Book.Services;
 using Bookstore.Web.Modules.NV4_Order.Services;
 
@@ -25,7 +28,15 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // 3. ĐẤU NỐI CÁC MODULE CHUYÊN BIỆT THEO CHUẨN DESIGN PATTERN
-// [NV1]: AuthService quản lý Session Singleton có Instance nội bộ riêng, không nạp tại đây.
+// [NV1]: Đăng ký Strategy (Nếu muốn đổi thuật toán, CHỈ CẦN SỬA ĐÚNG DÒNG NÀY)
+// builder.Services.AddSingleton<IPasswordHashStrategy, BcryptPasswordStrategy>();
+builder.Services.AddSingleton<IPasswordHashStrategy, Sha256PasswordStrategy>();
+
+// AuthService lưu trạng thái đăng nhập hiện tại trong bộ nhớ giả lập.
+// Vì demo chưa dùng session/cookie, đăng ký singleton để các request liên tiếp cùng nhận cùng phiên.
+builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<AccountProxy>();
 
 // [NV2]: Đăng ký dịch vụ sách thông qua giao diện Interface chuẩn trừu tượng
 builder.Services.AddScoped<IBookService, BookService>(); 

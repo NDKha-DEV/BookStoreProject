@@ -15,16 +15,24 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
             public string Address { get; set; } = string.Empty;
             public string? NewPassword { get; set; } 
         }
-        private readonly AccountProxy _accountProxy = new AccountProxy();
-        private readonly AccountService _accountService = new AccountService();
+        private readonly AccountProxy _accountProxy;
+        private readonly AccountService _accountService;
+        private readonly IAuthService _authService;
+
+        public AccountController(AccountProxy accountProxy, AccountService accountService, IAuthService authService)
+        {
+            _accountProxy = accountProxy;
+            _accountService = accountService;
+            _authService = authService;
+        }
 
         [HttpPost("login")]
         public IActionResult Login([FromQuery] string username, [FromQuery] string password)
         {
-            bool isSuccess = AuthService.Instance.Login(username, password);
+            bool isSuccess = _authService.Login(username, password);
             if (isSuccess)
             {
-                var user = AuthService.Instance.CurrentLoggedInUser;
+                var user = _authService.CurrentLoggedInUser;
                 if (user == null) return BadRequest(new { Message = "Không thể thiết lập phiên đăng nhập!" });
 
                 return Ok(new { Message = "Đăng nhập thành công!", User = user.Username, Role = user.Role });
@@ -35,14 +43,14 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            AuthService.Instance.Logout();
+            _authService.Logout();
             return Ok(new { Message = "Đã đăng xuất hệ thống." });
         }
 
         [HttpPost("register")]
         public IActionResult Register([FromQuery] string username, [FromQuery] string password)
         {
-            bool isSuccess = AuthService.Instance.Register(username, password);
+            bool isSuccess = _authService.Register(username, password);
             if (isSuccess) return Ok(new { Message = "Đăng ký tài khoản khách hàng thành công!" });
             return BadRequest(new { Message = "Tên tài khoản đã tồn tại!" });
         }
@@ -50,7 +58,7 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
         [HttpPut("profile/update")]
         public IActionResult UpdateProfile([FromBody] UpdateProfileDto request)
         {
-            bool isSuccess = AuthService.Instance.UpdateProfile(request.FullName, request.Address, request.NewPassword);
+            bool isSuccess = _authService.UpdateProfile(request.FullName, request.Address, request.NewPassword);
             if (isSuccess) return Ok(new { Message = "Cập nhật thông tin cá nhân (Tên, Địa chỉ, Mật khẩu) thành công!" });
             return Unauthorized(new { Message = "Bạn chưa đăng nhập hệ thống!" });
         }
@@ -67,10 +75,30 @@ namespace Bookstore.Web.Modules.NV1_Account.Controllers
             return Forbid("Bạn không có quyền! Yêu cầu tài khoản ADMIN.");
         }
 
-        [HttpPost("admin/create-account")]
-        public IActionResult CreateAccountByAdmin([FromBody] User newUser)
+        public class AdminCreateUserDto
         {
+            public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+            public string FullName { get; set; } = string.Empty;
+            public string Address { get; set; } = string.Empty;
+            public string Role { get; set; } = "CUSTOMER";
+        }
+
+        [HttpPost("admin/create-account")]
+        public IActionResult CreateAccountByAdmin([FromBody] AdminCreateUserDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest(new { Message = "Username và password là bắt buộc." });
+
             bool isAllowed = _accountProxy.ExecuteAdminAction(() => {
+                var newUser = new User
+                {
+                    Username = request.Username,
+                    PasswordHash = request.Password,
+                    FullName = request.FullName,
+                    Address = request.Address,
+                    Role = string.IsNullOrWhiteSpace(request.Role) ? "CUSTOMER" : request.Role.ToUpperInvariant()
+                };
                 _accountService.CreateAccountByAdmin(newUser);
             });
 

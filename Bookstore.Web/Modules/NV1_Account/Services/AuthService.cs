@@ -1,37 +1,30 @@
 using System;
 using System.Linq;
 using Bookstore.Core.Models.NV1_Account;
-using Bookstore.Core.Utils; // Đảm bảo chứa PasswordHasher của bạn
+using Bookstore.Core.Utils;
+using Bookstore.Core.Security;
 using Bookstore.Core.Models; // Để đọc dữ liệu MockDataStore
 
 namespace Bookstore.Web.Modules.NV1_Account.Services
 {
     public class AuthService : IAuthService
     {
-        private static AuthService? _instance;
-        private static readonly object _lock = new object();
-        public User? CurrentLoggedInUser { get; private set; }
+        private readonly IPasswordHashStrategy _passwordStrategy;
 
-        private AuthService() { }
-
-        public static AuthService Instance
+        // Dependency Injection (Tiêm Strategy vào)
+        public AuthService(IPasswordHashStrategy passwordStrategy)
         {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_instance == null) _instance = new AuthService();
-                    return _instance;
-                }
-            }
+            _passwordStrategy = passwordStrategy;
         }
+
+        public User? CurrentLoggedInUser { get; private set; }
 
         public bool Login(string username, string password)
         {
             var user = MockDataStore.Users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
             if (user == null) return false;
 
-            bool isValid = PasswordHasher.VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
+            bool isValid = _passwordStrategy.VerifyPassword(password, user.PasswordHash, user.PasswordSalt);
             if (isValid)
             {
                 CurrentLoggedInUser = user;
@@ -47,8 +40,8 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
             if (MockDataStore.Users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
                 return false;
 
-            string hash = PasswordHasher.HashPassword(password, out string salt);
-            
+            var (hash, salt) = _passwordStrategy.HashPassword(password);
+
             var newUser = new User
             {
                 Id = MockDataStore.Users.Count + 1,
@@ -75,7 +68,7 @@ namespace Bookstore.Web.Modules.NV1_Account.Services
                 // Chỉ cập nhật mật khẩu nếu người dùng có gửi password mới lên
                 if (!string.IsNullOrWhiteSpace(newPassword))
                 {
-                    string hash = PasswordHasher.HashPassword(newPassword, out string salt);
+                    var (hash, salt) = _passwordStrategy.HashPassword(newPassword);
                     user.PasswordHash = hash;
                     user.PasswordSalt = salt;
                 }

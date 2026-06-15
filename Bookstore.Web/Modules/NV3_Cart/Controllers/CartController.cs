@@ -4,6 +4,7 @@ using System.Linq;
 using Bookstore.Web.Modules.NV3_Cart.Services;
 using Bookstore.Web.Modules.NV1_Account.Services;
 using Bookstore.Core.Models;
+using Bookstore.Core.Models.NV1_Account;
 
 namespace Bookstore.Web.Modules.NV3_Cart.Controllers
 {
@@ -13,11 +14,17 @@ namespace Bookstore.Web.Modules.NV3_Cart.Controllers
     {
         // 🔥 ĐỒNG BỘ KIẾN TRÚC: Khởi tạo trực tiếp Runtime, không phụ thuộc vào DI Container của Program.cs
         private readonly CartService _cartService = new CartService();
+        private readonly IAuthService _authService;
+
+        public CartController(IAuthService authService)
+        {
+            _authService = authService;
+        }
 
         // Hàm trợ giúp định danh UserId linh hoạt, đồng bộ hóa 100% với phiên đăng nhập trong bộ nhớ RAM
         private int GetCurrentUserId()
         {
-            var user = AuthService.Instance.CurrentLoggedInUser;
+            var user = _authService.CurrentLoggedInUser;
             if (user != null) return user.Id;
 
             // Cơ chế Fallback thông minh phục vụ môi trường Integration Test của xUnit

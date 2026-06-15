@@ -810,8 +810,9 @@
         let user = document.getElementById("login-user").value;
         let pass = document.getElementById("login-pass").value;
         try {
+          let params = new URLSearchParams({ username: user, password: pass });
           let res = await fetch(
-            `${API_BASE_URL}/api/Account/login?username=${user}&password=${pass}`,
+            `${API_BASE_URL}/api/Account/login?${params}`,
             { method: "POST" },
           );
           let data = await res.json();
@@ -833,8 +834,9 @@
         let user = document.getElementById("reg-user").value;
         let pass = document.getElementById("reg-pass").value;
         try {
+          let params = new URLSearchParams({ username: user, password: pass });
           let res = await fetch(
-            `${API_BASE_URL}/api/Account/register?username=${user}&password=${pass}`,
+            `${API_BASE_URL}/api/Account/register?${params}`,
             { method: "POST" },
           );
           let data = await res.json();

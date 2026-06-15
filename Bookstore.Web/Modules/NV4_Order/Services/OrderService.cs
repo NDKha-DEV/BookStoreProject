@@ -6,7 +6,7 @@ using Bookstore.Core.Models;
 using Bookstore.Core.Models.NV4_Order;
 using Bookstore.Core.Models.NV4_Order.Interfaces;
 using Bookstore.Core.Models.NV3_Cart;
-using Bookstore.Web.Modules.NV1_Account.Services;
+using Bookstore.Core.Models.NV1_Account;
 using Bookstore.Web.Modules.NV4_Order.States;
 using Bookstore.Web.Modules.NV4_Order.Observers;
 
@@ -14,9 +14,16 @@ namespace Bookstore.Web.Modules.NV4_Order.Services
 {
     public class OrderService : IOrderService
     {
+        private readonly IAuthService _authService;
+
+        public OrderService(IAuthService authService)
+        {
+            _authService = authService;
+        }
+
         public Order CreateOrder(decimal dynamicTotalAmount)
         {
-            var authUser = AuthService.Instance.CurrentLoggedInUser; 
+            var authUser = _authService.CurrentLoggedInUser; 
             int currentUserId;
 
             if (authUser != null)
