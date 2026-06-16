@@ -6,7 +6,7 @@ using Bookstore.Core.Models.NV4_Order.Interfaces;
 
 namespace Bookstore.Core.Models.NV4_Order
 {
-    public class Order
+    public class Order : IOrderSubject
     {
         public int Id { get; set; }
         public int UserId { get; set; }
@@ -31,6 +31,8 @@ namespace Bookstore.Core.Models.NV4_Order
                 observer.UpdateOnOrderDelivered(this.Id);
             }
         }
+
+        public void RemoveObserver(IOrderObserver observer) => _observers.Remove(observer);
 
         public void Proceed() => CurrentState.Proceed(this);
         public void Cancel()

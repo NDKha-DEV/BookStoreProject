@@ -51,7 +51,7 @@ namespace Bookstore.Web.Modules.NV4_Order.Controllers
                 // 1. Cập nhật số Km người dùng truyền từ API vào thuộc tính của Cart
                 cart.DeliveryDistanceInKm = distanceInKm;
 
-                // 2. 🔥 GỌI ĐỒNG BỘ LUỒNG: Lấy tổng tiền trọn gói cuối cùng (Đã gồm sách + thuế + quà + ship)
+                // 2. Lấy tổng tiền trọn gói cuối cùng (Đã gồm sách + thuế + quà + ship)
                 decimal finalDynamicTotal = _cartService.GetFinalTotal(userId, applyVat, applyGiftWrapping);
 
                 // 3. Tiến hành tạo đơn hàng với số tiền chính xác

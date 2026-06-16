@@ -5,7 +5,7 @@ namespace Bookstore.Core.Models.NV4_Order.Interfaces
 {
     public interface IOrderService
     {
-        // 🌟 ĐÃ CẬP NHẬT: Thêm tham số dynamicTotalAmount để khớp hoàn toàn với OrderService ở tầng Web
+        // Thêm tham số dynamicTotalAmount để khớp hoàn toàn với OrderService ở tầng Web
         Order CreateOrder(decimal dynamicTotalAmount);
         
         // Điều hướng trạng thái đơn hàng dựa trên hành động ("proceed" hoặc "cancel")
